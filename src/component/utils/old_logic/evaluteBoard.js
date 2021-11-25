@@ -5,7 +5,7 @@ import {
   TAKE_BEST_N,
   SCORE,
   patterns,
-} from './boardUtils';
+} from '../boardUtils';
 
 import { getDiagonalBoard } from './getDiagonalBoard';
 

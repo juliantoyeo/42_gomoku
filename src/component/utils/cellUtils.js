@@ -1,5 +1,34 @@
 import _ from 'lodash';
 
+// export const getCellFromNode = (node, index) => {
+//   let new_cell = null;
+//   if (node.dir === 'h') {
+//     new_cell = {
+//       y: node.start.y,
+//       x: node.start.x + index,
+//     }
+//   }
+//   else if (node.dir === 'v') {
+//     new_cell = {
+//       y: node.start.y + index,
+//       x: node.start.x,
+//     }
+//   }
+//   else if (node.dir === 'd_1') {
+//     new_cell = {
+//       y: node.start.y + index,
+//       x: node.start.x - index,
+//     }
+//   }
+//   else if (node.dir === 'd_2') {
+//     new_cell = {
+//       y: node.start.y + index,
+//       x: node.start.x + index,
+//     }
+//   }
+//   return new_cell;
+// }
+
 export const getCellFromNode = (node, index) => {
   let new_cell = null;
   if (node.dir === 'h') {
@@ -17,12 +46,12 @@ export const getCellFromNode = (node, index) => {
   else if (node.dir === 'd_1') {
     new_cell = {
       y: node.start.y + index,
-      x: node.start.x - index,
+      x: node.start.x + index,
     }
   }
   else if (node.dir === 'd_2') {
     new_cell = {
-      y: node.start.y + index,
+      y: node.start.y - index,
       x: node.start.x + index,
     }
   }

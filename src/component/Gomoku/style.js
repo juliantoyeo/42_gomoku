@@ -55,7 +55,9 @@ export const Cell = styled.div`
   font-size: 1.5rem;
   /* font-weight: 600; */
   position: relative;
-  background-color: ${props => props.hightLight ? props.hightLight : '#A07A4A'};
+  /* background-color: ${props => props.hightLight ? props.hightLight : '#A07A4A'}; */
+  /* border: 1px solid; */
+  background-color: ${props => props.adjacent ? props.adjacent : props.hightLight ? props.hightLight : '#A07A4A'};
   :hover {
     background-color: rgba(160,122,74,0.7);
   }
@@ -66,11 +68,11 @@ export const CellNumber = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  padding: 10px;
+  padding: 1px;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
 `;
 
 export const GameStatus = styled.div`
