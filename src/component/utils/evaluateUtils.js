@@ -4,6 +4,7 @@ import {
   SCORE,
   TAKE_BEST_N,
   patterns,
+  patterns_index,
   getCoordinateId
 } from './boardUtils';
 
@@ -158,7 +159,7 @@ const getBlock = (curr_board, adjacent_cells, dir) => {
         else backward = false;
       }
     }
-    
+
     // console.log(`scanned y: ${y}, x: ${x} `, block);
     allBlock.push({
       start: { y: start.y, x: start.x },
@@ -199,7 +200,20 @@ export const evaluteAdjacentCell = (curr_board, curr_player, adjacent_cells) => 
       ['asc']
     ), TAKE_BEST_N
   );
-  console.log(`b_node`, b_node);
-  console.log(`t_node`, t_node);
-  return ({ b_node, t_node });
+  // console.log(`b_node`, b_node);
+  // console.log(`t_node`, t_node);
+
+  let combinedNode = _.take(
+    _.orderBy(
+      _.map([...b_node, ...t_node], (node) => {
+        node.priority = _.findIndex(patterns_index, (category) => category === node.category);
+        return node
+      }),
+      ['priority'],
+      ['asc']
+    ), TAKE_BEST_N
+  );
+  console.log('combinedNode', combinedNode);
+  // return ({ b_node, t_node });
+  return (combinedNode);
 }

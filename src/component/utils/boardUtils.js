@@ -43,30 +43,32 @@ export const demoBoard = [
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
 ]
 
+export const patterns_index = ['win', 'double_open4', 'open4', 'double_open3', 'broken3', 'covered3', 'open2', 'convered2', 'open1', 'close1']
+
 export const patterns = {
-  // 'win': [
+  // [patterns_index[0]]: [
   //   [1, 1, 1, 1, 1]
   // ],
-  'double_open4': [
+  [patterns_index[1]]: [
     [0, 1, 1, 1, 1, 0]
   ],
-  // 'open4': [
+  // [patterns_index[2]]: [
   //   [1, 1, 1, 1, 0],
   //   [1, 1, 1, 0, 1],
   //   [1, 1, 0, 1, 1],
   //   [1, 0, 1, 1, 1],
   //   [0, 1, 1, 1, 1]
   // ],
-  'double_open3': [
+  [patterns_index[3]]: [
     [0, 1, 1, 1, 0]
   ],
-  'broken3': [
+  [patterns_index[4]]: [
     [0, 1, 0, 1, 1, 0],
     [0, 1, 1, 0, 1, 0],
     [0, 1, 0, 0, 1, 1, 0],
     [0, 1, 1, 0, 0, 1, 0]
   ],
-  'covered3': [
+  [patterns_index[5]]: [
     [1, 1, 1, 0, 0],
     [0, 0, 1, 1, 1],
     [1, 0, 1, 1, 0],
@@ -77,13 +79,13 @@ export const patterns = {
     [0, 1, 0, 1, 1],
     [1, 0, 1, 0, 1]
   ],
-  'open2': [
+  [patterns_index[6]]: [
     [0, 1, 1, 0, 0],
     [0, 0, 1, 1, 0],
     [0, 1, 0, 1, 0],
     [0, 1, 0, 0, 1, 0]
   ],
-  'convered2': [
+  [patterns_index[7]]: [
     [1, 1, 0, 0, 0],
     [0, 0, 0, 1, 1],
     [1, 0, 1, 0, 0],
@@ -91,26 +93,26 @@ export const patterns = {
     [1, 0, 0, 1, 0],
     [0, 1, 0, 0, 1]
   ],
-  // 'open1': [
+  // [patterns_index[8]]: [
   //   [0, 0, 1, 0, 0],
   // ],
-  'close1': [
+  [patterns_index[9]]: [
     [1, 0],
     [0, 1]
   ]
 }
 
 export const SCORE = {
-  'win': 100,
-  'double_open4': 90,
-  'open4': 80,
-  'double_open3': 70,
-  'broken3': 60,
-  'covered3': 50,
-  'open2': 40,
-  'convered2': 30,
-  'open1': 20,
-  'close1': 10
+  [patterns_index[0]]: 100,
+  [patterns_index[1]]: 90,
+  [patterns_index[2]]: 80,
+  [patterns_index[3]]: 70,
+  [patterns_index[4]]: 60,
+  [patterns_index[5]]: 50,
+  [patterns_index[6]]: 40,
+  [patterns_index[7]]: 30,
+  [patterns_index[8]]: 20,
+  [patterns_index[9]]: 10
 }
 
 export const getCoordinateId = (y, x) => {

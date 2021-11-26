@@ -82,9 +82,12 @@ const Gomoku = () => {
     const node = evaluteAdjacentCell(board.board, currentPlayer, adjacent_cells);
     const list = generateBTcell(node);
     if (showHighlight) {
-      setBCell(list.bList);
-      setTCell(list.tList);
+      setBCell(list);
+      // setBCell(list.bList);
+      // setTCell(list.tList);
     }
+    console.log(`node`, node);
+    console.log(`list`, list);
   }
 
 
