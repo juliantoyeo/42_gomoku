@@ -52,7 +52,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, gameTurn, set
   //   }
   // };
 
-  const minimax = (board, adj_cells, curr_player, depth, isMaximize, last_move) => {
+  const minimax = (board, adj_cells, curr_player, depth, isMaximize, last_move, alpha, beta) => {
     let score = 0;
     let curr_adj = _.cloneDeep(adj_cells);
     let best_move = { y: 0, x: 0 }
@@ -79,33 +79,48 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, gameTurn, set
     // printBoard(boardCopy.board, curr_adj, []);
     if (isMaximize) {
       let best = MIN;
-
-      _.map(list, (cell) => {
+      for (let i = 0; i < list.length; i++) {
+      // _.map(list, (cell) => {
+        const cell = list[i];
         boardCopy.board[cell.y][cell.x] = curr_player;
         boardCopy.available = boardCopy.available - 1;
-        let val = minimax(boardCopy, curr_adj, humanPlayer, depth + 1, false, cell);
+        let val = minimax(boardCopy, curr_adj, humanPlayer, depth + 1, false, cell, alpha, beta);
         best = Math.max(best, val);
         if (best === val) best_move = cell;
         boardCopy.board[cell.y][cell.x] = '';
         boardCopy.available = boardCopy.available + 1;
+        alpha = Math.max(alpha, best);
+
+        // Alpha Beta Pruning
+        if (beta <= alpha)
+          break;
         // console.log('best max', best, 'depth ', depth);
-      })
+      // })
+      }
       if (depth === 0) return best_move;
       return best;
     }
     else {
       let best = MAX;
 
-      _.map(list, (cell) => {
+      for (let i = 0; i < list.length; i++) {
+      // _.map(list, (cell) => {
+        const cell = list[i];
         boardCopy.board[cell.y][cell.x] = curr_player;
         boardCopy.available = boardCopy.available - 1;
-        let val = minimax(boardCopy, curr_adj, aiPlayer, depth + 1, true, cell);
+        let val = minimax(boardCopy, curr_adj, aiPlayer, depth + 1, true, cell, alpha, beta);
         best = Math.min(best, val);
         if (best === val) best_move = cell;
         boardCopy.board[cell.y][cell.x] = '';
         boardCopy.available = boardCopy.available + 1;
+        beta = Math.min(beta, best);
+
+        // Alpha Beta Pruning
+        if (beta <= alpha)
+          break;
         // console.log('best min', best, 'depth ', depth);
-      })
+      // })
+      }
       if (depth === 0) return best_move;
       return best;
     }
@@ -123,7 +138,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, gameTurn, set
     // console.log(`list`, list);
     const boardCopy = _.cloneDeep(board);
     const adj_cells_copy = _.cloneDeep(adjacentCells);
-    const best_move = minimax(boardCopy, adj_cells_copy, aiPlayer, 0, true, null);
+    const best_move = minimax(boardCopy, adj_cells_copy, aiPlayer, 0, true, null, MIN, MAX);
     // console.log('best_move', best_move);
     return best_move;
   }

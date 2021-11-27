@@ -40,8 +40,8 @@ const Gomoku = () => {
   const [gameStatus, setGameStatus] = useState(null);
   const [gameTurn, setGameTurn] = useState(0);
   const [timer, setTimer] = useState(0);
-  const [showHighlight, setShowHighlight] = useState(true);
-  const [showAdjacent, setShowAdjacent] = useState(true);
+  const [showHighlight, setShowHighlight] = useState(false);
+  const [showAdjacent, setShowAdjacent] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState('X');
   const [humanPlayer, setHumanPlayer] = useState('O');
   const [aiPlayer, setAiPlayer] = useState('X');
