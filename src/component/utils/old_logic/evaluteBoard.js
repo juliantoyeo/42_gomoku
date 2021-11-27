@@ -5,6 +5,7 @@ import {
   TAKE_BEST_N,
   SCORE,
   patterns,
+  patterns_index,
 } from '../boardUtils';
 
 import { getDiagonalBoard } from './getDiagonalBoard';
@@ -104,7 +105,18 @@ export const evaluateBoard = (currentBoard, currentPlayer) => {
       ['asc']
     ), TAKE_BEST_N
   );
+
+  let combinedNode = _.take(
+    _.orderBy(
+      _.map([...b_node, ...t_node], (node) => {
+        node.priority = _.findIndex(patterns_index, (category) => category === node.category);
+        return node
+      }),
+      ['priority'],
+      ['asc']
+    ), TAKE_BEST_N
+  );
   // console.log(`b_node`, b_node);
   // console.log(`t_node`, t_node);
-  return ({ b_node, t_node });
+  return (combinedNode);
 }

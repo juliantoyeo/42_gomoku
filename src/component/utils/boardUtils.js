@@ -18,8 +18,10 @@ export const CELL_SIZE = 3;
 export const CONNECT_N = 5;
 
 // AI setting
-export const TAKE_BEST_N = 3;
-export const DEPTH = 3;
+export const TAKE_BEST_N = 1;
+export const DEPTH = 10;
+export const MAX = 1000;
+export const MIN = -1000;
 
 export const demoBoard = [
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -46,19 +48,19 @@ export const demoBoard = [
 export const patterns_index = ['win', 'double_open4', 'open4', 'double_open3', 'broken3', 'covered3', 'open2', 'convered2', 'open1', 'close1']
 
 export const patterns = {
-  // [patterns_index[0]]: [
-  //   [1, 1, 1, 1, 1]
-  // ],
+  [patterns_index[0]]: [
+    [1, 1, 1, 1, 1]
+  ],
   [patterns_index[1]]: [
     [0, 1, 1, 1, 1, 0]
   ],
-  // [patterns_index[2]]: [
-  //   [1, 1, 1, 1, 0],
-  //   [1, 1, 1, 0, 1],
-  //   [1, 1, 0, 1, 1],
-  //   [1, 0, 1, 1, 1],
-  //   [0, 1, 1, 1, 1]
-  // ],
+  [patterns_index[2]]: [
+    [1, 1, 1, 1, 0],
+    [1, 1, 1, 0, 1],
+    [1, 1, 0, 1, 1],
+    [1, 0, 1, 1, 1],
+    [0, 1, 1, 1, 1]
+  ],
   [patterns_index[3]]: [
     [0, 1, 1, 1, 0]
   ],
@@ -127,4 +129,26 @@ export const createBoard = () => {
     )
   );
   // return demoBoard;
+}
+
+const getCell = (board, adj_cells, list, { y, x }) => {
+  const selectedCell = _.find(adj_cells, (cell) => cell.y === y && cell.x === x);
+  const selectedBcell = _.find(list, (cell) => cell.y === y && cell.x === x);
+  // if (selectedBcell) return 'B';
+  // else if (selectedCell) return 'a';
+  if (board[y][x] === '') return '_';
+  return board[y][x];
+}
+
+export const printBoard = (board, adj_cells, list) => {
+  let string = '\ta,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s\n';
+  _.map(board, (row, y) => {
+    let rowString = `${y}\t`;
+    _.map(row, (col, x) => {
+      rowString = `${rowString}${getCell(board, adj_cells, list, { y, x })},`
+    })
+    rowString = `${rowString}`
+    string = `${string}${rowString}\n`
+  })
+  console.log(string);
 }

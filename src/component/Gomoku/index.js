@@ -7,14 +7,18 @@ import {
   CONNECT_N,
   SCORE,
   TAKE_BEST_N,
+  DEPTH,
+  MAX,
+  MIN,
   patterns,
   createBoard,
   getCoordinateId,
 } from '../utils/boardUtils';
+import { useAi } from './useAi';
 import { checkWin } from '../utils/checkWin';
 import { checkScore } from '../utils/checkScore';
 import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
-import { evaluteAdjacentCell } from '../utils/evaluateUtils';
+import { evaluteCells } from '../utils/evaluateUtils';
 // import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
 import { generateBTcell } from '../utils/cellUtils';
 
@@ -37,7 +41,7 @@ const Gomoku = () => {
   const [gameTurn, setGameTurn] = useState(0);
   const [timer, setTimer] = useState(0);
   const [showHighlight, setShowHighlight] = useState(true);
-  const [showAdjacent, setShowAdjacent] = useState(false);
+  const [showAdjacent, setShowAdjacent] = useState(true);
   const [currentPlayer, setCurrentPlayer] = useState('X');
   const [humanPlayer, setHumanPlayer] = useState('O');
   const [aiPlayer, setAiPlayer] = useState('X');
@@ -51,43 +55,98 @@ const Gomoku = () => {
     available: BOARD_SIZE * BOARD_SIZE,
   });
 
+  const [getBestMove] = useAi(aiPlayer, humanPlayer, board, adjacentCells, gameTurn, setBCell);
+
 
   useEffect(() => {
-    const newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, moveRecord);
-
-    setAdjacentCells(newAdjacentCells);
     if (currentPlayer === aiPlayer) {
-      console.log('AI turn');
-      if (gameTurn === 0) {
-        putMark({ y: Math.round(BOARD_SIZE / 2) - 1, x: Math.round(BOARD_SIZE / 2) - 1 });
-        // let newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, moveRecord);
-        // setAdjacentCells(newAdjacentCells);
-      }
-      else {
-        const start = window.performance.now();
-        AiMove(newAdjacentCells);
-        // let newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, moveRecord);
-        // setAdjacentCells(newAdjacentCells);
-        const end = window.performance.now();
-        setTimer(end - start);
-      }
+      const start = window.performance.now();
+      const bestMove = getBestMove();
+      const end = window.performance.now();
+      setTimer(end - start);
+      if (bestMove)
+        putMark(bestMove);
+      // console.log('AI turn');
+      // if (gameTurn === 0) {
+      //   const y = Math.round(BOARD_SIZE / 2) - 1;
+      //   const x = Math.round(BOARD_SIZE / 2) - 1;
+      //   putMark({ y, x });
+
+      // }
+      // else {
+      //   const start = window.performance.now();
+      //   AiMove();
+      //   const end = window.performance.now();
+      //   setTimer(end - start);
+      // }
     }
   }, [aiPlayer, currentPlayer]);
 
   // console.log('bCell', bCell);
   // console.log('tCell', tCell);
-  console.log('adjacentCells', adjacentCells);
+  // console.log('adjacentCells', adjacentCells);
 
-  const AiMove = (adjacent_cells) => {
-    const node = evaluteAdjacentCell(board.board, currentPlayer, adjacent_cells);
-    const list = generateBTcell(node);
-    if (showHighlight) {
-      setBCell(list);
-      // setBCell(list.bList);
-      // setTCell(list.tList);
-    }
-    console.log(`node`, node);
-    console.log(`list`, list);
+  // let MAX = 1000;
+  // let MIN = -1000;
+
+  // // Returns optimal value for
+  // // current player (Initially called
+  // // for root and maximizer)
+  // function minimax(depth, nodeIndex, maximizingPlayer, values, alpha, beta) {
+  //   // Terminating condition. i.e
+  //   // leaf node is reached
+  //   if (depth == 3)
+  //     return values[nodeIndex];
+
+  //   if (maximizingPlayer) {
+  //     let best = MIN;
+
+  //     // Recur for left and
+  //     // right children
+  //     for (let i = 0; i < 2; i++) {
+  //       let val = minimax(depth + 1, nodeIndex * 2 + i,
+  //         false, values, alpha, beta);
+  //       best = Math.max(best, val);
+  //       alpha = Math.max(alpha, best);
+
+  //       // Alpha Beta Pruning
+  //       if (beta <= alpha)
+  //         break;
+  //     }
+  //     return best;
+  //   }
+  //   else {
+  //     let best = MAX;
+
+  //     // Recur for left and
+  //     // right children
+  //     for (let i = 0; i < 2; i++) {
+
+  //       let val = minimax(depth + 1, nodeIndex * 2 + i,
+  //         true, values, alpha, beta);
+  //       best = Math.min(best, val);
+  //       beta = Math.min(beta, best);
+
+  //       // Alpha Beta Pruning
+  //       if (beta <= alpha)
+  //         break;
+  //     }
+  //     return best;
+  //   }
+  // }
+
+  const AiMove = () => {
+    // const newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, moveRecord);
+    // setAdjacentCells(newAdjacentCells);
+    // const node = evaluteCells(board.board, currentPlayer, adjacentCells);
+    // const list = generateBTcell(node);
+    // if (showHighlight) {
+    //   setBCell(list);
+    // }
+    // console.log(`node`, node);
+    // console.log(`list`, list);
+    // const boardCopy = _.cloneDeep(board);
+    // const best = minimax(boardCopy, 0, true);
   }
 
 
@@ -126,6 +185,7 @@ const Gomoku = () => {
     setGameTurn(0);
     setBCell([]);
     setTCell([]);
+    // setAdjacentCells([]);
     setMoveRecord([]);
     setGameStatus(null);
   }
@@ -144,6 +204,8 @@ const Gomoku = () => {
         x: x,
         owner: currentPlayer,
       }
+      const newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, { y, x });
+      setAdjacentCells(newAdjacentCells);
       setMoveRecord((prev) => [...prev, currentMove]);
       checkScore({ board: board.board, currentPlayer, curY: y, curX: x });
       if (checkWin({ board: board.board, currentPlayer, curY: y, curX: x })) setGameStatus(currentPlayer);

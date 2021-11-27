@@ -19,11 +19,11 @@ export const generateAdjacentFromAllOccupiedCell = (curr_board, move_record) => 
   return new_adjacent_cells;
 }
 
-export const generateAdjacentFromLastOccupiedCell = (curr_board, adjacent_cells, move_record) => {
+export const generateAdjacentFromLastOccupiedCell = (curr_board, adjacent_cells, last_move) => {
   let new_adjacent_cells = [];
-  const lastMove = _.last(move_record);
-  if (lastMove) {
-    const { y, x } = lastMove;
+  // const lastMove = _.last(move_record);
+  if (last_move) {
+    const { y, x } = last_move;
     new_adjacent_cells = _.filter(adjacent_cells, (cell) => (cell.y !== y || cell.x !== x));
     if (curr_board[y - 1]?.[x - 1] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x - 1), y: y - 1, x: x - 1 });
     if (curr_board[y - 1]?.[x] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x), y: y - 1, x: x });

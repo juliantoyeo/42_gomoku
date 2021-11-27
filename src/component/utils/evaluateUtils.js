@@ -113,11 +113,11 @@ const getNextCoordinate = (y, x, index, dir, isForward) => {
   })
 }
 
-const getBlock = (curr_board, adjacent_cells, dir) => {
+const getBlock = (curr_board, cells_to_eval, dir) => {
   const allBlock = [];
   const overlapped_cells = [];
 
-  _.map(adjacent_cells, (cell) => {
+  _.map(cells_to_eval, (cell) => {
     if (_.find(overlapped_cells, (o_cell) => o_cell.id === cell.id)) return; // skip overlapped cells as it is already scanned and included in the block
     const { y, x } = cell;
     let next = { y, x };
@@ -126,12 +126,12 @@ const getBlock = (curr_board, adjacent_cells, dir) => {
     let b_offset = 0;
     let backward = true;
     let forward = true;
-    let block = ['']; // the middle of the block, this is empty ofcourse
+    let block = [curr_board[y][x]];
 
     for (let i = 1; i < CONNECT_N + f_offset; i++) { // scan 4 cell forward to get all the cell content
       if (forward) {
         next = getNextCoordinate(y, x, i, dir, true);
-        const overlapped_cell = _.find(adjacent_cells, (cell) => cell.id === next.id);
+        const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
 
         if (overlapped_cell) {
           overlapped_cells.push(overlapped_cell);
@@ -146,7 +146,7 @@ const getBlock = (curr_board, adjacent_cells, dir) => {
     for (let i = 1; i < CONNECT_N + b_offset; i++) { // scan 4 cell backward to get all the cell content
       if (backward) {
         next = getNextCoordinate(y, x, i, dir, false);
-        const overlapped_cell = _.find(adjacent_cells, (cell) => cell.id === next.id);
+        const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
 
         if (overlapped_cell) {
           overlapped_cells.push(overlapped_cell);
@@ -171,13 +171,13 @@ const getBlock = (curr_board, adjacent_cells, dir) => {
   return allBlock;
 }
 
-export const evaluteAdjacentCell = (curr_board, curr_player, adjacent_cells) => {
+export const evaluteCells = (curr_board, curr_player, cells_to_eval) => {
   let b_node = [];
   let t_node = [];
-  const horizontalBlock = getBlock(curr_board, adjacent_cells, 'h');
-  const verticalBlock = getBlock(curr_board, adjacent_cells, 'v');
-  const diagonalBlock_1 = getBlock(curr_board, adjacent_cells, 'd_1');
-  const diagonalBlock_2 = getBlock(curr_board, adjacent_cells, 'd_2');
+  const horizontalBlock = getBlock(curr_board, cells_to_eval, 'h');
+  const verticalBlock = getBlock(curr_board, cells_to_eval, 'v');
+  const diagonalBlock_1 = getBlock(curr_board, cells_to_eval, 'd_1');
+  const diagonalBlock_2 = getBlock(curr_board, cells_to_eval, 'd_2');
   // console.log('horizontalBlock', horizontalBlock);
   // console.log('verticalBlock', verticalBlock);
   // console.log('diagonalBlock_1', diagonalBlock_1);
@@ -188,14 +188,14 @@ export const evaluteAdjacentCell = (curr_board, curr_player, adjacent_cells) => 
   const d_node_2 = evaluate(diagonalBlock_2, curr_player);
   b_node = _.take(
     _.orderBy(
-      _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner === curr_player),
+      _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner === curr_player),
       ['score'],
       ['desc']
     ), TAKE_BEST_N
   );
   t_node = _.take(
     _.orderBy(
-      _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner !== curr_player),
+      _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner !== curr_player),
       ['score'],
       ['asc']
     ), TAKE_BEST_N
@@ -213,7 +213,7 @@ export const evaluteAdjacentCell = (curr_board, curr_player, adjacent_cells) => 
       ['asc']
     ), TAKE_BEST_N
   );
-  console.log('combinedNode', combinedNode);
+  // console.log('combinedNode', combinedNode);
   // return ({ b_node, t_node });
   return (combinedNode);
 }
