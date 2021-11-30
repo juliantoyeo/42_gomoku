@@ -4,9 +4,10 @@ import boardBackground from '../../assets/images/wood-pattern.png';
 import './board.css';
 
 const Container = styled.div`
-  width: 720px;
-  height: 720px;
-  padding: calc(720px / 40);
+  width: 800px;
+  height: 800px;
+  padding: calc(800px / 40);
+
   background-color: #f1b06c;
   background-image: url(${boardBackground});
 `;
@@ -15,11 +16,14 @@ const BoardContainer = styled.div`
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-columns: repeat(36, calc(720px / 36));
-  grid-template-rows: repeat(36, calc(720px / 36));
+
+  grid-template-columns: repeat(40, calc(800px / 40));
+  grid-template-rows: repeat(40, calc(800px / 40));
+
   border-right: 1px solid grey;
   border-bottom: 1px solid grey;
-  background-size: calc(720px / 18) calc(720px / 18);
+
+  background-size: calc(800px / 20) calc(800px / 20);
   background-image: linear-gradient(to right, grey 1px, transparent 1px),
     linear-gradient(to bottom, grey 1px, transparent 1px);
 `;
@@ -38,21 +42,22 @@ export default function Board(props) {
   const [hoverClassName, setHoverClassName] = useState('');
 
   const outter = [
-    2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34,
+    2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
   ];
 
-  const ids = [2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34];
+  const ids = [
+    2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
+  ];
   useEffect(() => {
     if (currentPlayer.length) {
-      placeStone(10, 10, 'black');
-      placeStone(11, 10, 'white');
-      placeStone(11, 11, 'black');
-      placeStone(10, 11, 'white');
-      placeStone(12, 12, 'white');
-
-      placeStone(17, 3, 'black');
-      placeStone(3, 4, 'white');
-      placeStone(4, 4, 'black');
+      // placeStone(10, 10, 'black');
+      // placeStone(11, 10, 'white');
+      // placeStone(11, 11, 'black');
+      // placeStone(10, 11, 'white');
+      // placeStone(12, 12, 'white');
+      // placeStone(17, 3, 'black');
+      // placeStone(3, 4, 'white');
+      // placeStone(4, 4, 'black');
     }
   }, []);
 
@@ -91,76 +96,76 @@ export default function Board(props) {
         <BoardContainer id="board">
           <Mark
             style={{
-              gridColumnStart: 6,
-              gridColumnEnd: 8,
-              gridRowStart: 6,
-              gridRowEnd: 8,
+              gridColumnStart: 8,
+              gridColumnEnd: 10,
+              gridRowStart: 8,
+              gridRowEnd: 10,
             }}
           />
 
           <Mark
             style={{
-              gridColumnStart: 6,
-              gridColumnEnd: 8,
-              gridRowStart: 18,
-              gridRowEnd: 20,
+              gridColumnStart: 8,
+              gridColumnEnd: 10,
+              gridRowStart: 20,
+              gridRowEnd: 22,
             }}
           />
 
           <Mark
             style={{
-              gridColumnStart: 6,
-              gridColumnEnd: 8,
-              gridRowStart: 30,
-              gridRowEnd: 32,
+              gridColumnStart: 8,
+              gridColumnEnd: 10,
+              gridRowStart: 32,
+              gridRowEnd: 34,
             }}
           />
           <Mark
             style={{
-              gridColumnStart: 18,
-              gridColumnEnd: 20,
-              gridRowStart: 6,
-              gridRowEnd: 8,
+              gridColumnStart: 20,
+              gridColumnEnd: 22,
+              gridRowStart: 8,
+              gridRowEnd: 10,
             }}
           />
           <Mark
             style={{
-              gridColumnStart: 18,
-              gridColumnEnd: 20,
-              gridRowStart: 18,
-              gridRowEnd: 20,
+              gridColumnStart: 20,
+              gridColumnEnd: 22,
+              gridRowStart: 20,
+              gridRowEnd: 22,
             }}
           />
           <Mark
             style={{
-              gridColumnStart: 18,
-              gridColumnEnd: 20,
-              gridRowStart: 30,
-              gridRowEnd: 32,
+              gridColumnStart: 20,
+              gridColumnEnd: 22,
+              gridRowStart: 32,
+              gridRowEnd: 34,
             }}
           />
           <Mark
             style={{
-              gridColumnStart: 30,
-              gridColumnEnd: 32,
-              gridRowStart: 6,
-              gridRowEnd: 8,
+              gridColumnStart: 32,
+              gridColumnEnd: 34,
+              gridRowStart: 8,
+              gridRowEnd: 10,
             }}
           />
           <Mark
             style={{
-              gridColumnStart: 30,
-              gridColumnEnd: 32,
-              gridRowStart: 18,
-              gridRowEnd: 20,
+              gridColumnStart: 32,
+              gridColumnEnd: 34,
+              gridRowStart: 20,
+              gridRowEnd: 22,
             }}
           />
           <Mark
             style={{
-              gridColumnStart: 30,
-              gridColumnEnd: 32,
-              gridRowStart: 30,
-              gridRowEnd: 32,
+              gridColumnStart: 32,
+              gridColumnEnd: 34,
+              gridRowStart: 32,
+              gridRowEnd: 34,
             }}
           />
           {outter.map((outterId, indexOutter) => {
