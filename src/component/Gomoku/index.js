@@ -227,6 +227,11 @@ const Gomoku = () => {
               <div>Game turn</div>
               <div>Turn: {gameTurn}</div>
             </GameStatus>
+            <GameStatus>
+              <div>Capture count</div>
+              <div>X: {captureCount.X}</div>
+              <div>O: {captureCount.O}</div>
+            </GameStatus>
             <StyledButton
               onClick={() => setShowHighlight(!showHighlight)}
               active={showHighlight}
