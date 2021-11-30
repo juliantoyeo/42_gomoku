@@ -25,9 +25,9 @@ export const MIN = -1000;
 
 export const demoBoard = [
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-  ['', 'X', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-  ['', 'X', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-  ['', 'X', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+  ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+  ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+  ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
@@ -45,32 +45,47 @@ export const demoBoard = [
   ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
 ]
 
-export const patterns_index = ['win', 'double_open4', 'open4', 'double_open3', 'broken3', 'covered3', 'open2', 'convered2', 'open1', 'close1']
+export const createBoard = () => {
+  return (
+    Array.from(new Array(BOARD_SIZE), () =>
+      new Array(BOARD_SIZE).fill('')
+    )
+  );
+  // return demoBoard;
+}
+
+export const patterns_index = ['win', 'double_open4', 'open4', 'double_open3', 'capture', 'broken3', 'covered3', 'open2', 'convered2', 'open1', 'close1']
 
 export const patterns = {
-  [patterns_index[0]]: [
+  'win': [
     [1, 1, 1, 1, 1]
   ],
-  [patterns_index[1]]: [
+  'double_open4': [
     [0, 1, 1, 1, 1, 0]
   ],
-  [patterns_index[2]]: [
+  'open4': [
     [1, 1, 1, 1, 0],
     [1, 1, 1, 0, 1],
     [1, 1, 0, 1, 1],
     [1, 0, 1, 1, 1],
     [0, 1, 1, 1, 1]
   ],
-  [patterns_index[3]]: [
+  'double_open3': [
     [0, 1, 1, 1, 0]
   ],
-  [patterns_index[4]]: [
+  'capture': [
+    [1, 2, 2, 0],
+    [0, 2, 2, 1],
+    // [2, 1, 1, 0],
+    // [0, 1, 1, 2]
+  ],
+  'broken3': [
     [0, 1, 0, 1, 1, 0],
     [0, 1, 1, 0, 1, 0],
     [0, 1, 0, 0, 1, 1, 0],
     [0, 1, 1, 0, 0, 1, 0]
   ],
-  [patterns_index[5]]: [
+  'covered3': [
     [1, 1, 1, 0, 0],
     [0, 0, 1, 1, 1],
     [1, 0, 1, 1, 0],
@@ -81,13 +96,13 @@ export const patterns = {
     [0, 1, 0, 1, 1],
     [1, 0, 1, 0, 1]
   ],
-  [patterns_index[6]]: [
+  'open2': [
     [0, 1, 1, 0, 0],
     [0, 0, 1, 1, 0],
     [0, 1, 0, 1, 0],
     [0, 1, 0, 0, 1, 0]
   ],
-  [patterns_index[7]]: [
+  'convered2': [
     [1, 1, 0, 0, 0],
     [0, 0, 0, 1, 1],
     [1, 0, 1, 0, 0],
@@ -95,26 +110,27 @@ export const patterns = {
     [1, 0, 0, 1, 0],
     [0, 1, 0, 0, 1]
   ],
-  // [patterns_index[8]]: [
+  // 'open1: [
   //   [0, 0, 1, 0, 0],
   // ],
-  [patterns_index[9]]: [
+  'close1': [
     [1, 0],
     [0, 1]
   ]
 }
 
 export const SCORE = {
-  [patterns_index[0]]: 100,
-  [patterns_index[1]]: 90,
-  [patterns_index[2]]: 80,
-  [patterns_index[3]]: 70,
-  [patterns_index[4]]: 60,
-  [patterns_index[5]]: 50,
-  [patterns_index[6]]: 40,
-  [patterns_index[7]]: 30,
-  [patterns_index[8]]: 20,
-  [patterns_index[9]]: 10
+  'win': 100,
+  'double_open4': 90,
+  'open4': 80,
+  'double_open3': 70,
+  'capture': 60,
+  'broken3': 55,
+  'covered3': 50,
+  'open2': 40,
+  'convered2': 30,
+  'open1': 20,
+  'close1': 10
 }
 
 export const getCoordinateId = (y, x) => {
@@ -122,21 +138,14 @@ export const getCoordinateId = (y, x) => {
   return `${y}${xArray[x]}`;
 }
 
-export const createBoard = () => {
-  return (
-    Array.from(new Array(BOARD_SIZE), () =>
-      new Array(BOARD_SIZE).fill('')
-    )
-  );
-  // return demoBoard;
-}
-
 const getCell = (board, adj_cells, list, { y, x }) => {
   const selectedCell = _.find(adj_cells, (cell) => cell.y === y && cell.x === x);
   const selectedBcell = _.find(list, (cell) => cell.y === y && cell.x === x);
-  // if (selectedBcell) return 'B';
+  if (selectedCell?.isIllegal) return 'I';
+  else if (selectedBcell?.isCapturingCell) return 'C';
+  else if (selectedBcell) return 'B';
   // else if (selectedCell) return 'a';
-  if (board[y][x] === '') return '_';
+  else if (board[y][x] === '') return '_';
   return board[y][x];
 }
 

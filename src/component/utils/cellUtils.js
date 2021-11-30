@@ -33,7 +33,7 @@ import { getCoordinateId } from './boardUtils';
 export const getCellFromNode = (node, index) => {
   const new_pos = { y: node.start.y, x: node.start.x };
   let new_cell = null;
-  
+
   if (node.dir === 'h') {
     new_pos.y = node.start.y;
     new_pos.x = node.start.x + index;
@@ -64,14 +64,19 @@ const generateCell = (nodes) => {
     for (let i = 0; i < node.pattern.length; i++) {
       if (node.pattern[i] === 0) {
         let new_cell = getCellFromNode(node, i);
-        if (new_cell) newList.push(new_cell);
+        if (new_cell) {
+          if (node.category === 'capture')
+            newList.push({ ...new_cell, isCapturingCell: true });
+          else
+            newList.push(new_cell);
+        }
       }
     }
   })
   return _.uniqBy(newList, 'id');
 }
 
-export const generateBTcell = (node) => {
+export const generatePotentialList = (node) => {
   // const bList = generateCell(node.b_node);
   // const tList = generateCell(node.t_node);
   // return ({ bList, tList });

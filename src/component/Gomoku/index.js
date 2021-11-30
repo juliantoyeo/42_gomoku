@@ -21,6 +21,7 @@ import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCe
 import { evaluteCells } from '../utils/evaluateUtils';
 // import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
 import { generateBTcell } from '../utils/cellUtils';
+import { checkCapture, checkIllegalMoveCapture } from '../utils/captureUtils';
 
 import {
   MainContainer,
@@ -40,6 +41,7 @@ const Gomoku = () => {
   const [gameStatus, setGameStatus] = useState(null);
   const [gameTurn, setGameTurn] = useState(0);
   const [timer, setTimer] = useState(0);
+  const [captureCount, setCaptureCount] = useState({ X: 0, O: 0 });
   const [showHighlight, setShowHighlight] = useState(false);
   const [showAdjacent, setShowAdjacent] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState('X');
@@ -55,7 +57,7 @@ const Gomoku = () => {
     available: BOARD_SIZE * BOARD_SIZE,
   });
 
-  const [getBestMove] = useAi(aiPlayer, humanPlayer, board, adjacentCells, gameTurn, setBCell);
+  const [getBestMove] = useAi(aiPlayer, humanPlayer, board, adjacentCells, captureCount, gameTurn, setBCell);
 
 
   useEffect(() => {
@@ -66,88 +68,12 @@ const Gomoku = () => {
       setTimer(end - start);
       if (bestMove)
         putMark(bestMove);
-      // console.log('AI turn');
-      // if (gameTurn === 0) {
-      //   const y = Math.round(BOARD_SIZE / 2) - 1;
-      //   const x = Math.round(BOARD_SIZE / 2) - 1;
-      //   putMark({ y, x });
-
-      // }
-      // else {
-      //   const start = window.performance.now();
-      //   AiMove();
-      //   const end = window.performance.now();
-      //   setTimer(end - start);
-      // }
     }
   }, [aiPlayer, currentPlayer]);
 
   // console.log('bCell', bCell);
   // console.log('tCell', tCell);
   // console.log('adjacentCells', adjacentCells);
-
-  // let MAX = 1000;
-  // let MIN = -1000;
-
-  // // Returns optimal value for
-  // // current player (Initially called
-  // // for root and maximizer)
-  // function minimax(depth, nodeIndex, maximizingPlayer, values, alpha, beta) {
-  //   // Terminating condition. i.e
-  //   // leaf node is reached
-  //   if (depth == 3)
-  //     return values[nodeIndex];
-
-  //   if (maximizingPlayer) {
-  //     let best = MIN;
-
-  //     // Recur for left and
-  //     // right children
-  //     for (let i = 0; i < 2; i++) {
-  //       let val = minimax(depth + 1, nodeIndex * 2 + i,
-  //         false, values, alpha, beta);
-  //       best = Math.max(best, val);
-  //       alpha = Math.max(alpha, best);
-
-  //       // Alpha Beta Pruning
-  //       if (beta <= alpha)
-  //         break;
-  //     }
-  //     return best;
-  //   }
-  //   else {
-  //     let best = MAX;
-
-  //     // Recur for left and
-  //     // right children
-  //     for (let i = 0; i < 2; i++) {
-
-  //       let val = minimax(depth + 1, nodeIndex * 2 + i,
-  //         true, values, alpha, beta);
-  //       best = Math.min(best, val);
-  //       beta = Math.min(beta, best);
-
-  //       // Alpha Beta Pruning
-  //       if (beta <= alpha)
-  //         break;
-  //     }
-  //     return best;
-  //   }
-  // }
-
-  const AiMove = () => {
-    // const newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, moveRecord);
-    // setAdjacentCells(newAdjacentCells);
-    // const node = evaluteCells(board.board, currentPlayer, adjacentCells);
-    // const list = generateBTcell(node);
-    // if (showHighlight) {
-    //   setBCell(list);
-    // }
-    // console.log(`node`, node);
-    // console.log(`list`, list);
-    // const boardCopy = _.cloneDeep(board);
-    // const best = minimax(boardCopy, 0, true);
-  }
 
 
   const undo = () => {
@@ -163,7 +89,7 @@ const Gomoku = () => {
     setGameTurn((prev) => prev - 1);
     newRecord.pop();
     setMoveRecord(newRecord);
-    const newAdjacentCells = generateAdjacentFromAllOccupiedCell(newBoard.board, newRecord);
+    const newAdjacentCells = generateAdjacentFromAllOccupiedCell(newBoard.board, currentPlayer, newRecord);
 
     setAdjacentCells(newAdjacentCells);
   }
@@ -182,6 +108,7 @@ const Gomoku = () => {
       setHumanPlayer('O');
       setAiPlayer('X');
     }
+    setCaptureCount({ x: 0, o: 0 });
     setGameTurn(0);
     setBCell([]);
     setTCell([]);
@@ -190,25 +117,37 @@ const Gomoku = () => {
     setGameStatus(null);
   }
 
+
+
   const putMark = ({ y, x }) => {
     // console.log(y, x);
     if (board.board[y][x] === '') {
-      const newBoard = _.cloneDeep(board);
+      let newBoard = _.cloneDeep(board);
+      let newAdjacentCells = _.cloneDeep(adjacentCells);
+      const nextPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
+        return;
+      }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;
+      const result = checkCapture(newBoard, currentPlayer, captureCount, { y, x });
+      newBoard = result.board;
+      newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);
-      setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
+      setCaptureCount(result.captured);
+      setCurrentPlayer(nextPlayer);
       setGameTurn((prev) => prev + 1);
       const currentMove = {
         y: y,
         x: x,
         owner: currentPlayer,
       }
-      const newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, { y, x });
+      newAdjacentCells = generateAdjacentFromLastOccupiedCell(newBoard.board, nextPlayer, newAdjacentCells, { y, x });
+      // console.log('newAdjacentCells', newAdjacentCells);
       setAdjacentCells(newAdjacentCells);
       setMoveRecord((prev) => [...prev, currentMove]);
-      checkScore({ board: board.board, currentPlayer, curY: y, curX: x });
-      if (checkWin({ board: board.board, currentPlayer, curY: y, curX: x })) setGameStatus(currentPlayer);
+      checkScore({ board: newBoard.board, currentPlayer, curY: y, curX: x });
+      if (checkWin({ board: newBoard.board, currentPlayer, curY: y, curX: x })) setGameStatus(currentPlayer);
       else if (newBoard.available === 0) setGameStatus('tie');
     }
   };
@@ -235,7 +174,8 @@ const Gomoku = () => {
 
   const getAdjacent = ({ y, x }) => {
     const selectedCell = _.find(adjacentCells, (cell) => cell.y === y && cell.x === x);
-    if (selectedCell) return '#333399';
+    if (selectedCell?.isIllegal) return '#993333';
+    else if (selectedCell) return '#333399';
     return null;
   }
 
@@ -269,6 +209,11 @@ const Gomoku = () => {
           <GameStatus>
             <div>Game turn</div>
             <div>Turn: {gameTurn}</div>
+          </GameStatus>
+          <GameStatus>
+            <div>Capture count</div>
+            <div>X: {captureCount.X}</div>
+            <div>O: {captureCount.O}</div>
           </GameStatus>
           <StyledButton onClick={() => setShowHighlight(!showHighlight)} active={showHighlight}>
             <div>Highlight best and threat cell on player turn</div>
