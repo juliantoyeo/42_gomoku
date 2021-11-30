@@ -139,15 +139,18 @@ export const getCoordinateId = (y, x) => {
 }
 
 const getCell = (board, adj_cells, list, { y, x }) => {
-  const selectedCell = _.find(adj_cells, (cell) => cell.y === y && cell.x === x);
+  const selectedCell = _.find(
+    adj_cells,
+    (cell) => cell.y === y && cell.x === x
+  );
   const selectedBcell = _.find(list, (cell) => cell.y === y && cell.x === x);
   if (selectedCell?.isIllegal) return 'I';
   else if (selectedBcell?.isCapturingCell) return 'C';
-  else if (selectedBcell) return 'B';
-  // else if (selectedCell) return 'a';
+  else if (selectedBcell) return '\u001b[36mB\u001b[37m';
+  // else if (selectedCell) return '\u001b[31ma\u001b[37m';
   else if (board[y][x] === '') return '_';
   return board[y][x];
-}
+};
 
 export const printBoard = (board, adj_cells, list) => {
   let string = '\ta,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s\n';

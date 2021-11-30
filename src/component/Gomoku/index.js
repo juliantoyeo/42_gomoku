@@ -35,7 +35,7 @@ import {
   PlayerTurnContainer,
   PlayerNameContainer
 } from './style';
-
+import Board from '../board';
 
 const Gomoku = () => {
   const [gameStatus, setGameStatus] = useState(null);
@@ -57,8 +57,15 @@ const Gomoku = () => {
     available: BOARD_SIZE * BOARD_SIZE,
   });
 
-  const [getBestMove] = useAi(aiPlayer, humanPlayer, board, adjacentCells, captureCount, gameTurn, setBCell);
-
+  const [getBestMove] = useAi(
+    aiPlayer,
+    humanPlayer,
+    board,
+    adjacentCells,
+    captureCount,
+    gameTurn,
+    setBCell
+  );
 
   useEffect(() => {
     if (currentPlayer === aiPlayer) {
@@ -66,15 +73,13 @@ const Gomoku = () => {
       const bestMove = getBestMove();
       const end = window.performance.now();
       setTimer(end - start);
-      if (bestMove)
-        putMark(bestMove);
+      if (bestMove) putMark(bestMove);
     }
   }, [aiPlayer, currentPlayer]);
 
   // console.log('bCell', bCell);
   // console.log('tCell', tCell);
   // console.log('adjacentCells', adjacentCells);
-
 
   const undo = () => {
     if (moveRecord.length === 0) return;
@@ -89,10 +94,14 @@ const Gomoku = () => {
     setGameTurn((prev) => prev - 1);
     newRecord.pop();
     setMoveRecord(newRecord);
-    const newAdjacentCells = generateAdjacentFromAllOccupiedCell(newBoard.board, currentPlayer, newRecord);
+    const newAdjacentCells = generateAdjacentFromAllOccupiedCell(
+      newBoard.board,
+      currentPlayer,
+      newRecord
+    );
 
     setAdjacentCells(newAdjacentCells);
-  }
+  };
 
   const newGame = (selectedPlayer) => {
     setBoard({
@@ -103,8 +112,7 @@ const Gomoku = () => {
     if (selectedPlayer === 'X') {
       setHumanPlayer('X');
       setAiPlayer('O');
-    }
-    else {
+    } else {
       setHumanPlayer('O');
       setAiPlayer('X');
     }
@@ -115,12 +123,12 @@ const Gomoku = () => {
     // setAdjacentCells([]);
     setMoveRecord([]);
     setGameStatus(null);
-  }
+  };
 
 
 
   const putMark = ({ y, x }) => {
-    // console.log(y, x);
+    console.log(y, x);
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
       let newAdjacentCells = _.cloneDeep(adjacentCells);
@@ -142,26 +150,28 @@ const Gomoku = () => {
         x: x,
         owner: currentPlayer,
       }
-      newAdjacentCells = generateAdjacentFromLastOccupiedCell(newBoard.board, nextPlayer, newAdjacentCells, { y, x });
-      // console.log('newAdjacentCells', newAdjacentCells);
+      newAdjacentCells = generateAdjacentFromLastOccupiedCell(
+        newBoard.board,
+        nextPlayer,
+        newAdjacentCells,
+        { y, x }
+      );
       setAdjacentCells(newAdjacentCells);
       setMoveRecord((prev) => [...prev, currentMove]);
       checkScore({ board: newBoard.board, currentPlayer, curY: y, curX: x });
-      if (checkWin({ board: newBoard.board, currentPlayer, curY: y, curX: x })) setGameStatus(currentPlayer);
+      if (checkWin({ board: newBoard.board, currentPlayer, curY: y, curX: x }))
+        setGameStatus(currentPlayer);
       else if (newBoard.available === 0) setGameStatus('tie');
     }
   };
 
   const getGameStatus = () => {
     if (gameStatus) {
-      if (gameStatus === 'tie')
-        return ('Game end, result : tie')
-      if (gameStatus === 'X')
-        return ('Game end, result : X wins')
-      if (gameStatus === 'O')
-        return ('Game end, result : O wins')
+      if (gameStatus === 'tie') return 'Game end, result : tie';
+      if (gameStatus === 'X') return 'Game end, result : X wins';
+      if (gameStatus === 'O') return 'Game end, result : O wins';
     }
-  }
+  };
 
   const getHighlight = ({ y, x }) => {
     const selectedBcell = _.find(bCell, (cell) => cell.y === y && cell.x === x);
@@ -170,75 +180,89 @@ const Gomoku = () => {
     else if (selectedBcell) return '#339933';
     else if (selectedTcell) return '#993333';
     return null;
-  }
+  };
 
   const getAdjacent = ({ y, x }) => {
-    const selectedCell = _.find(adjacentCells, (cell) => cell.y === y && cell.x === x);
+    const selectedCell = _.find(
+      adjacentCells,
+      (cell) => cell.y === y && cell.x === x
+    );
     if (selectedCell?.isIllegal) return '#993333';
     else if (selectedCell) return '#333399';
     return null;
-  }
+  };
 
   return (
-    <MainContainer>
-      <MainDisplayContainer>
-        <BoardContainer>
-          {_.map(board.board, (row, y) => {
-            return (
-              _.map(row, (col, x) => {
-                const hightLight = showHighlight ? getHighlight({ y, x }) : null;
+    <>
+      <MainContainer>
+        <MainDisplayContainer>
+          <BoardContainer>
+            {_.map(board.board, (row, y) => {
+              return _.map(row, (col, x) => {
+                const hightLight = showHighlight
+                  ? getHighlight({ y, x })
+                  : null;
                 const adjacent = showAdjacent ? getAdjacent({ y, x }) : null;
                 return (
-                  <Cell key={x} onClick={() => putMark({ y, x })} hightLight={hightLight} adjacent={adjacent}>
+                  <Cell
+                    key={x}
+                    onClick={() => putMark({ y, x })}
+                    hightLight={hightLight}
+                    adjacent={adjacent}
+                  >
                     <CellNumber>{`(${y}, ${x})`}</CellNumber>
                     {board.board[y][x]}
                   </Cell>
                 );
-              })
-            );
-          })}
-        </BoardContainer>
-        <RightContainer>
-          <GameStatus>
-            {getGameStatus()}
-          </GameStatus>
-          <GameStatus>
-            <div>AI time usage</div>
-            <div>{timer / 1000} sec</div>
-          </GameStatus>
-          <GameStatus>
-            <div>Game turn</div>
-            <div>Turn: {gameTurn}</div>
-          </GameStatus>
-          <GameStatus>
-            <div>Capture count</div>
-            <div>X: {captureCount.X}</div>
-            <div>O: {captureCount.O}</div>
-          </GameStatus>
-          <StyledButton onClick={() => setShowHighlight(!showHighlight)} active={showHighlight}>
-            <div>Highlight best and threat cell on player turn</div>
-          </StyledButton>
-          <StyledButton onClick={() => setShowAdjacent(!showAdjacent)} active={showAdjacent}>
-            <div>Highlight adjacent cell</div>
-          </StyledButton>
-          <PlayerTurnContainer>
-            <PlayerNameContainer active={currentPlayer === 'X'}>X</PlayerNameContainer>
-            <PlayerNameContainer active={currentPlayer === 'O'}>O</PlayerNameContainer>
-          </PlayerTurnContainer>
-          <StyledButton onClick={undo} >
-            <div>Undo last move</div>
-            <div>Move saved : ( {moveRecord.length} )</div>
-          </StyledButton>
-          <StyledButton onClick={() => newGame('X')} >
-            <div>New Game Play as X</div>
-          </StyledButton>
-          <StyledButton onClick={() => newGame('O')} >
-            <div>New Game Play as O</div>
-          </StyledButton>
-        </RightContainer>
-      </MainDisplayContainer>
-    </MainContainer>
-  )
-}
+              });
+            })}
+          </BoardContainer>
+          <RightContainer>
+            <GameStatus>{getGameStatus()}</GameStatus>
+            <GameStatus>
+              <div>AI time usage</div>
+              <div>{timer / 1000} sec</div>
+            </GameStatus>
+            <GameStatus>
+              <div>Game turn</div>
+              <div>Turn: {gameTurn}</div>
+            </GameStatus>
+            <StyledButton
+              onClick={() => setShowHighlight(!showHighlight)}
+              active={showHighlight}
+            >
+              <div>Highlight best and threat cell on player turn</div>
+            </StyledButton>
+            <StyledButton
+              onClick={() => setShowAdjacent(!showAdjacent)}
+              active={showAdjacent}
+            >
+              <div>Highlight adjacent cell</div>
+            </StyledButton>
+            <PlayerTurnContainer>
+              <PlayerNameContainer active={currentPlayer === 'X'}>
+                X
+              </PlayerNameContainer>
+              <PlayerNameContainer active={currentPlayer === 'O'}>
+                O
+              </PlayerNameContainer>
+            </PlayerTurnContainer>
+            <StyledButton onClick={undo}>
+              <div>Undo last move</div>
+              <div>Move saved : ( {moveRecord.length} )</div>
+            </StyledButton>
+            <StyledButton onClick={() => newGame('X')}>
+              <div>New Game Play as X</div>
+            </StyledButton>
+            <StyledButton onClick={() => newGame('O')}>
+              <div>New Game Play as O</div>
+            </StyledButton>
+          </RightContainer>
+        </MainDisplayContainer>
+      </MainContainer>
+      <Board humanPlayer={humanPlayer} />
+    </>
+  );
+};
 
 export default Gomoku;
