@@ -16,11 +16,18 @@ import {
 } from '../utils/boardUtils';
 import { useAi } from './useAi';
 import { checkWin } from '../utils/checkWin';
-import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
+import {
+  generateAdjacentFromAllOccupiedCell,
+  generateAdjacentFromLastOccupiedCell,
+} from '../utils/adjacentCellUtils';
 import { evaluteCells } from '../utils/evaluateUtils';
 // import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
 import { generateBTcell } from '../utils/cellUtils';
-import { checkCapture, checkIfCaptureMove, checkIllegalMoveCapture } from '../utils/captureUtils';
+import {
+  checkCapture,
+  checkIfCaptureMove,
+  checkIllegalMoveCapture,
+} from '../utils/captureUtils';
 import { checkMoveDoubleThree } from '../utils/doubleThreeUtils';
 
 import {
@@ -146,8 +153,7 @@ const Gomoku = () => {
       if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
         setErrorMessage('Illegal move into capture area');
         return;
-      }
-      else if (!checkIfCaptureMove(newBoard.board, currentPlayer, { y, x })) {
+      } else if (!checkIfCaptureMove(newBoard.board, currentPlayer, { y, x })) {
         if (checkMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
           setErrorMessage('Illegal move that will result in double three');
           return;
@@ -160,7 +166,7 @@ const Gomoku = () => {
         x,
       });
       newBoard = result.board;
-     
+
       newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);
       setCaptureCount(result.captured);
@@ -251,7 +257,9 @@ const Gomoku = () => {
             </GameStatus>
             <GameStatus>
               <div>AI time usage</div>
-              <TimerDiv time={(timer / 1000)}>{(timer / 1000).toFixed(3)} sec</TimerDiv>
+              <TimerDiv time={timer / 1000}>
+                {(timer / 1000).toFixed(3)} sec
+              </TimerDiv>
             </GameStatus>
             <GameStatus>
               <div>Game turn</div>
@@ -295,15 +303,12 @@ const Gomoku = () => {
           </RightContainer>
         </MainDisplayContainer>
       </MainContainer>
-            {
-              humanPlayer && board && (
-                <FlexBox>
-                <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
-                {/* <Board /> */}
-                <Menu />
-              </FlexBox>
-              )
-            }
+      {humanPlayer && board && (
+        <FlexBox>
+          <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
+          <Menu />
+        </FlexBox>
+      )}
     </>
   );
 };
