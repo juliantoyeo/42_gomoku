@@ -138,7 +138,10 @@ const Gomoku = () => {
       }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;
-      const result = checkCapture(newBoard, currentPlayer, captureCount, { y, x });
+      const result = checkCapture(newBoard, currentPlayer, captureCount, {
+        y,
+        x,
+      });
       newBoard = result.board;
       newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);
@@ -149,7 +152,7 @@ const Gomoku = () => {
         y: y,
         x: x,
         owner: currentPlayer,
-      }
+      };
       newAdjacentCells = generateAdjacentFromLastOccupiedCell(
         newBoard.board,
         nextPlayer,
@@ -190,6 +193,10 @@ const Gomoku = () => {
     if (selectedCell?.isIllegal) return '#993333';
     else if (selectedCell) return '#333399';
     return null;
+  };
+
+  const boardCallback = (y, x) => {
+    putMark({ y, x });
   };
 
   return (
@@ -265,7 +272,7 @@ const Gomoku = () => {
           </RightContainer>
         </MainDisplayContainer>
       </MainContainer>
-      <Board humanPlayer={humanPlayer} />
+      <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
     </>
   );
 };
