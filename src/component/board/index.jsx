@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import boardBackground from '../../assets/images/wood-pattern.png';
-import './board.css';
+import './board.scss';
+import { BOARD_SIZE } from '../utils/boardUtils';
 
 const Container = styled.div`
   width: 800px;
@@ -40,6 +41,15 @@ const Mark = styled.div`
 export default function Board(props) {
   const [currentPlayer, setCurrentPlayer] = useState('O');
   const [hoverClassName, setHoverClassName] = useState('');
+  const [humanStoneColor, setHumanStoneColor] = useState('');
+  const [aiStoneColor, setAiStoneColor] = useState('');
+  const [boardCopy, setBoardCopy] = useState(
+    Array.from({ length: BOARD_SIZE }, () =>
+      Array.from({ length: BOARD_SIZE }, () => '')
+    )
+  );
+
+  const { humanPlayer, board, cb } = props;
 
   const outter = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
@@ -62,11 +72,53 @@ export default function Board(props) {
   }, []);
 
   useEffect(() => {
-    console.log(`The human player is -->> ${props.humanPlayer}`);
-    const c = props.humanPlayer === 'O' ? 'hoverMeWhite' : 'hoverMeBlack';
+    // console.log(`The human player is -->> ${props.humanPlayer}`);
+    const c = props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
+    const humanColor =
+      props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
+    /**
+     * The AI stone color will always be black or white
+     * The human player should be more options (bonus)
+     */
+    const aiColor =
+      humanColor === 'blackStoneHover' ? 'whiteStoneHover' : 'blackStoneHover';
     setHoverClassName(c);
+    setAiStoneColor(aiColor);
     setCurrentPlayer(props.humanPlayer);
   }, [props.humanPlayer]);
+
+  useEffect(() => {
+    // console.log(props.board);
+    (() => {
+      if (props.board) {
+        const { board } = props.board;
+        const xColor = props.humanPlayer === 'X' ? 'whiteStone' : 'blackStone';
+        const oColor = props.humanPlayer === 'O' ? 'whiteStone' : 'blackStone';
+        for (let row = 0; row < BOARD_SIZE; row++) {
+          for (let col = 0; col < BOARD_SIZE; col++) {
+            if (board[row][col] === 'O' && boardCopy[row][col] === '') {
+              placeStone(col + 2, row + 2, oColor);
+              setBoardCopy(board);
+            }
+            if (board[row][col] === 'X' && boardCopy[row][col] === '') {
+              placeStone(col + 2, row + 2, xColor);
+              setBoardCopy(board);
+            }
+            /**
+             * CAPTURE
+             * This condition will check for the captured stones
+             * to remove them from the borad.
+             */
+            if (board[row][col] === '' && boardCopy[row][col] !== '') {
+              const element = document.getElementById(`${row + 2}${col + 2}`);
+              element.parentNode.removeChild(element);
+              setBoardCopy(board);
+            }
+          }
+        }
+      }
+    })();
+  }, [props.board]);
 
   function placeStone(column, row, mark) {
     const board = document.querySelector('#board');
@@ -77,15 +129,17 @@ export default function Board(props) {
     stone.style.gridRowEnd = (row - 1) * 2 + 2;
     stone.classList.add('stone');
     stone.classList.add(mark);
+    stone.setAttribute('id', `${row}${column}`);
     board.appendChild(stone);
   }
 
   function handleClick(indexOutter, indexInner) {
     // console.log(
-    //   `indexOutter := ${indexOutter} indexInner := ${indexInner} hoverClassName := ${hoverClassName}`
+    //   `indexOutter := ${indexOutter} indexInner := ${indexInner} hoverClassName`
     // );
-    const stoneColor = hoverClassName === 'hoverMeWhite' ? 'white' : 'black';
-    placeStone(indexInner + 2, indexOutter + 2, stoneColor);
+
+    // placeStone(indexInner + 2, indexOutter + 2, stoneColor);
+    cb(indexOutter, indexInner);
   }
 
   return !currentPlayer.length ? (
