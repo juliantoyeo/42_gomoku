@@ -1,0 +1,39 @@
+/*
+* https://mycolor.space
+* Generate color palettes
+*/
+
+.arrow-pointer {
+  width: 250px;
+  height: 50px;
+  background: #25636D;
+  position: relative;
+
+  &:after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 0; width: 0; height: 0;
+    border-left: 25px solid #f1b06c;
+    border-top: 25px solid transparent;
+    border-bottom: 25px solid transparent;
+  }
+
+  &:before {
+    content: '';
+    position: absolute;
+    right: -25px;
+    bottom: 0;
+    width: 0;
+    height: 0;
+    border-left: 25px solid #25636D;
+    border-top: 25px solid transparent;
+    border-bottom: 25px solid transparent;
+  }
+
+	&:hover {
+		background: #357E70;
+		border-left: 25px solid #f1b06c;
+		
+		cursor: pointer;
+	}
+}

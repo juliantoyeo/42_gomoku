@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 import { BOARD_SIZE, CELL_SIZE } from '../utils/boardUtils';
 
 export const MainContainer = styled.div`
@@ -9,7 +9,7 @@ export const MainContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  -webkit-user-select: none; /* Safari */        
+  -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* Standard */
@@ -34,7 +34,7 @@ export const BoardContainer = styled.div`
   grid-gap: 1px;
   width: 70%;
   max-width: ${CELL_SIZE * BOARD_SIZE}vw;
-	background: 'black';
+  background: 'black';
 `;
 
 export const RightContainer = styled.div`
@@ -55,11 +55,17 @@ export const Cell = styled.div`
   font-size: 1.5rem;
   /* font-weight: 600; */
   position: relative;
-  /* background-color: ${props => props.hightLight ? props.hightLight : '#A07A4A'}; */
+  /* background-color: ${(props) =>
+    props.hightLight ? props.hightLight : '#A07A4A'}; */
   /* border: 1px solid; */
-  background-color: ${props => props.adjacent ? props.adjacent : props.hightLight ? props.hightLight : '#A07A4A'};
+  background-color: ${(props) =>
+    props.adjacent
+      ? props.adjacent
+      : props.hightLight
+      ? props.hightLight
+      : '#A07A4A'};
   :hover {
-    background-color: rgba(160,122,74,0.7);
+    background-color: rgba(160, 122, 74, 0.7);
   }
 `;
 
@@ -92,9 +98,9 @@ export const GameStatus = styled.div`
 
 export const StyledButton = styled(GameStatus)`
   cursor: pointer;
-  background-color: ${props => props.active ? '#339933' : 'black'};
+  background-color: ${(props) => (props.active ? '#339933' : 'black')};
   :hover {
-    border-color: #33FF33;
+    border-color: #33ff33;
   }
 `;
 
@@ -105,10 +111,13 @@ export const PlayerTurnContainer = styled(GameStatus)`
 
 export const PlayerNameContainer = styled(GameStatus)`
   margin-top: 0px;
-  background-color: ${props => props.active ? '#339933' : 'black'};
+  background-color: ${(props) => (props.active ? '#339933' : 'black')};
 `;
 
 export const TimerDiv = styled.div`
-  background-color: ${props => props.time >= 0.5 ? 'red' : 'black'};
+  background-color: ${(props) => (props.time >= 0.5 ? 'red' : 'black')};
   /* background-color: red; */
+`;
+export const FlexBox = styled.div`
+  display: flex;
 `;

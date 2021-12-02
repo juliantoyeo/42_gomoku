@@ -142,7 +142,7 @@ export default function Board(props) {
     cb(indexOutter, indexInner);
   }
 
-  return !currentPlayer.length ? (
+  return !currentPlayer?.length ? (
     <p>loading...</p>
   ) : (
     <>

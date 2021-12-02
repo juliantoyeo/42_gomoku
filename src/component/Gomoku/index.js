@@ -34,9 +34,12 @@ import {
   StyledButton,
   PlayerTurnContainer,
   PlayerNameContainer,
-  TimerDiv
+  TimerDiv,
+  FlexBox,
+  Container,
 } from './style';
 import Board from '../board';
+import Menu from '../menu';
 
 const Gomoku = () => {
   const [gameStatus, setGameStatus] = useState(null);
@@ -291,7 +294,11 @@ const Gomoku = () => {
           </RightContainer>
         </MainDisplayContainer>
       </MainContainer>
-      <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
+      <FlexBox>
+        <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
+        <Board />
+        <Menu />
+      </FlexBox>
     </>
   );
 };
