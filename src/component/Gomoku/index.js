@@ -160,6 +160,7 @@ const Gomoku = () => {
         x,
       });
       newBoard = result.board;
+     
       newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);
       setCaptureCount(result.captured);
@@ -294,11 +295,15 @@ const Gomoku = () => {
           </RightContainer>
         </MainDisplayContainer>
       </MainContainer>
-      <FlexBox>
-        <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
-        <Board />
-        <Menu />
-      </FlexBox>
+            {
+              humanPlayer && board && (
+                <FlexBox>
+                <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
+                {/* <Board /> */}
+                <Menu />
+              </FlexBox>
+              )
+            }
     </>
   );
 };
