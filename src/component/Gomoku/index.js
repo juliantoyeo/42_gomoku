@@ -22,6 +22,7 @@ import { evaluteCells } from '../utils/evaluateUtils';
 // import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
 import { generateBTcell } from '../utils/cellUtils';
 import { checkCapture, checkIllegalMoveCapture } from '../utils/captureUtils';
+import { checkIllegalMoveDoubleThree } from '../utils/doubleThreeUtils';
 
 import {
   MainContainer,
@@ -39,11 +40,12 @@ import Board from '../board';
 
 const Gomoku = () => {
   const [gameStatus, setGameStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [gameTurn, setGameTurn] = useState(0);
   const [timer, setTimer] = useState(0);
   const [captureCount, setCaptureCount] = useState({ X: 0, O: 0 });
   const [showHighlight, setShowHighlight] = useState(false);
-  const [showAdjacent, setShowAdjacent] = useState(false);
+  const [showAdjacent, setShowAdjacent] = useState(true);
   const [currentPlayer, setCurrentPlayer] = useState('X');
   const [humanPlayer, setHumanPlayer] = useState('O');
   const [aiPlayer, setAiPlayer] = useState('X');
@@ -116,7 +118,7 @@ const Gomoku = () => {
       setHumanPlayer('O');
       setAiPlayer('X');
     }
-    setCaptureCount({ x: 0, o: 0 });
+    setCaptureCount({ X: 0, O: 0 });
     setGameTurn(0);
     setBCell([]);
     setTCell([]);
@@ -125,16 +127,24 @@ const Gomoku = () => {
     setGameStatus(null);
   };
 
-
+  
 
   const putMark = ({ y, x }) => {
-    console.log(y, x);
+    // console.log(y, x);
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
       let newAdjacentCells = _.cloneDeep(adjacentCells);
       const nextPlayer = currentPlayer === 'X' ? 'O' : 'X';
       if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
+        setErrorMessage('Illegal move into capture area');
         return;
+      }
+      else if (checkIllegalMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
+        setErrorMessage('Illegal move that will result in double three');
+        return;
+      }
+      else {
+        setErrorMessage('');
       }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;
@@ -161,7 +171,7 @@ const Gomoku = () => {
       );
       setAdjacentCells(newAdjacentCells);
       setMoveRecord((prev) => [...prev, currentMove]);
-      checkScore({ board: newBoard.board, currentPlayer, curY: y, curX: x });
+      // checkScore({ board: newBoard.board, currentPlayer, curY: y, curX: x });
       if (checkWin({ board: newBoard.board, currentPlayer, curY: y, curX: x }))
         setGameStatus(currentPlayer);
       else if (newBoard.available === 0) setGameStatus('tie');
@@ -226,6 +236,9 @@ const Gomoku = () => {
           </BoardContainer>
           <RightContainer>
             <GameStatus>{getGameStatus()}</GameStatus>
+            <GameStatus>
+              <div>{errorMessage}</div>
+            </GameStatus>
             <GameStatus>
               <div>AI time usage</div>
               <div>{timer / 1000} sec</div>

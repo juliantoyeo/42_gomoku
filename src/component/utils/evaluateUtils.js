@@ -110,7 +110,7 @@ const evaluate = (blocks, curr_player, curr_capture) => {
   return n_array;
 }
 
-const getNextCoordinate = (y, x, index, dir, isForward) => {
+export const getNextCoordinate = (y, x, index, dir, isForward) => {
   let next = { y: y, x: x };
 
   if (dir === 'h') {
@@ -199,7 +199,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
 
 
 
-export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_capture, gameTurn) => {
+export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_capture, take_best) => {
   let b_node = [];
   let t_node = [];
   const horizontalBlock = getBlock(curr_board.board, cells_to_eval, 'h');
@@ -223,14 +223,14 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
       _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner === curr_player),
       ['score'],
       ['desc']
-    ), gameTurn < 4 ? 2 : TAKE_BEST_N
+    ), take_best
   );
   t_node = _.take(
     _.orderBy(
       _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner !== curr_player),
       ['score'],
       ['asc']
-    ), gameTurn < 4 ? 2 : TAKE_BEST_N
+    ), take_best
   );
   // console.log(`b_node`, b_node);
   // console.log(`t_node`, t_node);
@@ -243,7 +243,7 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
       }),
       ['priority'],
       ['asc']
-    ), gameTurn < 4 ? 2 : TAKE_BEST_N
+    ), take_best
   );
   // console.log('combinedNode', combinedNode);
   // return ({ b_node, t_node });

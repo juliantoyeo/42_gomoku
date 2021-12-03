@@ -69,7 +69,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       curr_adj = generateAdjacentFromLastOccupiedCell(boardCopy.board, curr_player, adj_cells, last_move);
     }
     // console.log('curr_adj', curr_adj);
-    const node = evaluteCells(boardCopy, curr_player, curr_adj, curr_capture, gameTurn);
+    const node = evaluteCells(boardCopy, curr_player, curr_adj, curr_capture, TAKE_BEST_N);
     const list = generatePotentialList(node);
     if (depth === 0) setBCell(list);
     // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
@@ -161,7 +161,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     else {
       // const tmpAdjacentCells = _.cloneDeep(adjacentCells);
       // setTmpAdjacentCells(_.cloneDeep(adjacentCells));
-      return AiMove();
+      AiMove();
     }
   }
 

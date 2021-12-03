@@ -54,7 +54,19 @@ export const createBoard = () => {
   // return demoBoard;
 }
 
-export const patterns_index = ['win', 'double_open4', 'open4', 'double_open3', 'capture', 'broken3', 'covered3', 'open2', 'convered2', 'open1', 'close1']
+export const patterns_index = [
+  'win',
+  'double_open4',
+  'open4',
+  'double_open3',
+  'capture',
+  'broken3_1',
+  'broken3_2',
+  'covered3',
+  'open2',
+  'convered2',
+  'close1'
+];
 
 export const patterns = {
   'win': [
@@ -76,12 +88,12 @@ export const patterns = {
   'capture': [
     [1, 2, 2, 0],
     [0, 2, 2, 1],
-    // [2, 1, 1, 0],
-    // [0, 1, 1, 2]
   ],
-  'broken3': [
+  'broken3_1': [
     [0, 1, 0, 1, 1, 0],
-    [0, 1, 1, 0, 1, 0],
+    [0, 1, 1, 0, 1, 0]
+  ],
+  'broken3_2': [
     [0, 1, 0, 0, 1, 1, 0],
     [0, 1, 1, 0, 0, 1, 0]
   ],
@@ -110,9 +122,6 @@ export const patterns = {
     [1, 0, 0, 1, 0],
     [0, 1, 0, 0, 1]
   ],
-  // 'open1: [
-  //   [0, 0, 1, 0, 0],
-  // ],
   'close1': [
     [1, 0],
     [0, 1]
@@ -125,11 +134,11 @@ export const SCORE = {
   'open4': 80,
   'double_open3': 70,
   'capture': 60,
-  'broken3': 55,
-  'covered3': 50,
-  'open2': 40,
-  'convered2': 30,
-  'open1': 20,
+  'broken3_1': 55,
+  'broken3_2': 50,
+  'covered3': 40,
+  'open2': 30,
+  'convered2': 20,
   'close1': 10
 }
 
