@@ -51,6 +51,11 @@ export default function Board(props) {
 
   const { humanPlayer, board, cb } = props;
 
+  useEffect(() => {
+    console.log('ComponentDidMount()');
+    console.log(`${humanPlayer} -- ${board.board}`);
+  }, [])
+
   const outter = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
   ];
@@ -58,21 +63,11 @@ export default function Board(props) {
   const ids = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
   ];
-  useEffect(() => {
-    if (currentPlayer.length) {
-      // placeStone(10, 10, 'black');
-      // placeStone(11, 10, 'white');
-      // placeStone(11, 11, 'black');
-      // placeStone(10, 11, 'white');
-      // placeStone(12, 12, 'white');
-      // placeStone(17, 3, 'black');
-      // placeStone(3, 4, 'white');
-      // placeStone(4, 4, 'black');
-    }
-  }, []);
+
 
   useEffect(() => {
     // console.log(`The human player is -->> ${props.humanPlayer}`);
+    setCurrentPlayer(humanPlayer);
     const c = props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
     const humanColor =
       props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
@@ -84,14 +79,14 @@ export default function Board(props) {
       humanColor === 'blackStoneHover' ? 'whiteStoneHover' : 'blackStoneHover';
     setHoverClassName(c);
     setAiStoneColor(aiColor);
-    setCurrentPlayer(props.humanPlayer);
   }, [props.humanPlayer]);
 
   useEffect(() => {
-    // console.log(props.board);
+    console.log(`bitch := ${props.board}`);
     (() => {
       if (props.board) {
         const { board } = props.board;
+        console.log(`dog := ${board}`)
         const xColor = props.humanPlayer === 'X' ? 'whiteStone' : 'blackStone';
         const oColor = props.humanPlayer === 'O' ? 'whiteStone' : 'blackStone';
         for (let row = 0; row < BOARD_SIZE; row++) {
@@ -122,15 +117,17 @@ export default function Board(props) {
 
   function placeStone(column, row, mark) {
     const board = document.querySelector('#board');
-    const stone = document.createElement('div');
-    stone.style.gridColumnStart = (column - 1) * 2;
-    stone.style.gridColumnEnd = (column - 1) * 2 + 2;
-    stone.style.gridRowStart = (row - 1) * 2;
-    stone.style.gridRowEnd = (row - 1) * 2 + 2;
-    stone.classList.add('stone');
-    stone.classList.add(mark);
-    stone.setAttribute('id', `${row}${column}`);
-    board.appendChild(stone);
+    if (board) {
+      const stone = document.createElement('div');
+      stone.style.gridColumnStart = (column - 1) * 2;
+      stone.style.gridColumnEnd = (column - 1) * 2 + 2;
+      stone.style.gridRowStart = (row - 1) * 2;
+      stone.style.gridRowEnd = (row - 1) * 2 + 2;
+      stone.classList.add('stone');
+      stone.classList.add(mark);
+      stone.setAttribute('id', `${row}${column}`);
+      board.appendChild(stone);
+    }
   }
 
   function handleClick(indexOutter, indexInner) {
@@ -142,7 +139,7 @@ export default function Board(props) {
     cb(indexOutter, indexInner);
   }
 
-  return !currentPlayer?.length ? (
+  return !currentPlayer ? (
     <p>loading...</p>
   ) : (
     <>
