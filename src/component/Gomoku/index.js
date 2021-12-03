@@ -166,7 +166,6 @@ const Gomoku = () => {
         x,
       });
       newBoard = result.board;
-
       newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);
       setCaptureCount(result.captured);
