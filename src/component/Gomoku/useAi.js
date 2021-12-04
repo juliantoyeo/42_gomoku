@@ -161,7 +161,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     else {
       // const tmpAdjacentCells = _.cloneDeep(adjacentCells);
       // setTmpAdjacentCells(_.cloneDeep(adjacentCells));
-      AiMove();
+      return AiMove();
     }
   }
 

@@ -1,14 +1,21 @@
 import _ from 'lodash';
 import { getCoordinateId } from './boardUtils';
-import { checkIllegalMoveCapture } from './captureUtils';
+import { checkIllegalMoveCapture, checkIfCaptureMove } from './captureUtils';
+import { checkIllegalMoveDoubleThree } from './doubleThreeUtils';
 
 const removeIllegalMove = (curr_board, curr_player, adj_cells) => {
   for (let i = 0; i < adj_cells.length; i++) {
+    adj_cells[i].isIllegal = false;
     if (checkIllegalMoveCapture(curr_board, curr_player, adj_cells[i])) {
       adj_cells[i].isIllegal = true;
     }
     else {
-      adj_cells[i].isIllegal = false;
+      if (checkIfCaptureMove(curr_board, curr_player, adj_cells[i])) {
+        adj_cells[i].isCapture = true;
+      }
+      else if (checkIllegalMoveDoubleThree(curr_board, curr_player, adj_cells[i])) {
+        adj_cells[i].isIllegal = true;
+      }
     }
   }
   return (adj_cells);

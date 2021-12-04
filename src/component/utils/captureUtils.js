@@ -98,3 +98,33 @@ export const checkIllegalMoveCapture = (curr_board, curr_player, cell) => {
   }
   return false;
 }
+
+export const checkIfCaptureMove = (curr_board, curr_player, cell) => {
+  const { y, x } = cell;
+  const enemy = curr_player === 'X' ? 'O' : 'X';
+  if (curr_board[y]?.[x + 1] === enemy && curr_board[y]?.[x + 2] === enemy && curr_board[y]?.[x + 3] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y]?.[x - 1] === enemy && curr_board[y]?.[x - 2] === enemy && curr_board[y]?.[x - 3] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y + 1]?.[x] === enemy && curr_board[y + 2]?.[x] === enemy && curr_board[y + 3]?.[x] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y - 1]?.[x] === enemy && curr_board[y - 2]?.[x] === enemy && curr_board[y - 3]?.[x] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y + 1]?.[x + 1] === enemy && curr_board[y + 2]?.[x + 2] === enemy && curr_board[y + 3]?.[x + 3] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y - 1]?.[x - 1] === enemy && curr_board[y - 2]?.[x - 2] === enemy && curr_board[y - 3]?.[x - 3] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y + 1]?.[x - 1] === enemy && curr_board[y + 2]?.[x - 2] === enemy && curr_board[y + 3]?.[x - 3] === curr_player) {
+    return true;
+  }
+  else if (curr_board[y - 1]?.[x + 1] === enemy && curr_board[y - 2]?.[x + 2] === enemy && curr_board[y - 3]?.[x + 3] === curr_player) {
+    return true;
+  }
+  return false;
+}

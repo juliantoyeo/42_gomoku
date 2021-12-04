@@ -8,6 +8,8 @@ import {
   getCoordinateId
 } from './boardUtils';
 
+import { getCoordinate } from './getCoordinate';
+
 const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_capture) => {
   let owner = '';
   let enemy = '';
@@ -110,32 +112,6 @@ const evaluate = (blocks, curr_player, curr_capture) => {
   return n_array;
 }
 
-export const getNextCoordinate = (y, x, index, dir, isForward) => {
-  let next = { y: y, x: x };
-
-  if (dir === 'h') {
-    if (isForward) next = { y: y, x: x + index };
-    else next = { y: y, x: x - index };
-  }
-  else if (dir === 'v') {
-    if (isForward) next = { y: y + index, x: x };
-    else next = { y: y - index, x: x };
-  }
-  else if (dir === 'd_1') {
-    if (isForward) next = { y: y + index, x: x + index };
-    else next = { y: y - index, x: x - index };
-  }
-  else if (dir === 'd_2') {
-    if (isForward) next = { y: y - index, x: x + index };
-    else next = { y: y + index, x: x - index };
-  }
-  return ({
-    id: getCoordinateId(next.y, next.x),
-    y: next.y,
-    x: next.x
-  })
-}
-
 const getBlock = (curr_board, cells_to_eval, dir) => {
   const allBlock = [];
   const overlapped_cells = [];
@@ -154,7 +130,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
 
     for (let i = 1; i < CONNECT_N + f_offset; i++) { // scan 4 cell forward to get all the cell content
       // if (forward) {
-      next = getNextCoordinate(y, x, i, dir, true);
+      next = getCoordinate(y, x, i, dir, true);
       const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
 
       if (overlapped_cell) {
@@ -170,7 +146,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
     }
     for (let i = 1; i < CONNECT_N + b_offset; i++) { // scan 4 cell backward to get all the cell content
       // if (backward) {
-      next = getNextCoordinate(y, x, i, dir, false);
+      next = getCoordinate(y, x, i, dir, false);
       const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
 
       if (overlapped_cell) {

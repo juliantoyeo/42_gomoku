@@ -21,7 +21,7 @@ import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCe
 import { evaluteCells } from '../utils/evaluateUtils';
 // import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
 import { generateBTcell } from '../utils/cellUtils';
-import { checkCapture, checkIllegalMoveCapture } from '../utils/captureUtils';
+import { checkCapture, checkIfCaptureMove, checkIllegalMoveCapture } from '../utils/captureUtils';
 import { checkIllegalMoveDoubleThree } from '../utils/doubleThreeUtils';
 
 import {
@@ -122,7 +122,7 @@ const Gomoku = () => {
     setGameTurn(0);
     setBCell([]);
     setTCell([]);
-    // setAdjacentCells([]);
+    setAdjacentCells([]);
     setMoveRecord([]);
     setGameStatus(null);
   };
@@ -134,17 +134,18 @@ const Gomoku = () => {
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
       let newAdjacentCells = _.cloneDeep(adjacentCells);
+      // let isCaptureMove = false;
       const nextPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      setErrorMessage('');
       if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
         setErrorMessage('Illegal move into capture area');
         return;
       }
-      else if (checkIllegalMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
-        setErrorMessage('Illegal move that will result in double three');
-        return;
-      }
-      else {
-        setErrorMessage('');
+      else if (!checkIfCaptureMove(newBoard.board, currentPlayer, { y, x })) {
+        if (checkIllegalMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
+          setErrorMessage('Illegal move that will result in double three');
+          return;
+        }
       }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;

@@ -128,6 +128,21 @@ export const patterns = {
   ]
 }
 
+export const doubleThreePattern = [
+  {
+    category: 'double_open3',
+    pattern: patterns.double_open3[0]
+  },
+  {
+    category: 'broken3_1',
+    pattern: patterns.broken3_1[0]
+  },
+  {
+    category: 'broken3_1',
+    pattern: patterns.broken3_1[1]
+  },
+]
+
 export const SCORE = {
   'win': 100,
   'double_open4': 90,
