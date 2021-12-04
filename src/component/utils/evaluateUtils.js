@@ -92,22 +92,24 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
 const evaluate = (blocks, curr_player, curr_capture) => {
   const n_array = [];
   // console.log('evaluate blocks', blocks);
-  _.map(blocks, (item) => {
-    for (let i = 0; i < item.block.length; i++) {
+
+  for (let item of blocks) {
+    for (let i = 0; i < item.block.length - 1; i++) {
       let new_node = null;
       // console.log(`evaluate ${i} item`, item);
-      _.map(patterns, (category, key) => {
-        if (new_node) return;
-        _.map(category, (pattern) => {
-          if (new_node) return;
+      for (let key in patterns) {
+        if (new_node) break;
+        // console.log(`evaluate key`, key);
+        for (let pattern of patterns[key]) {
+          if (new_node) break;
           new_node = getNodeFromPattern(item, i, pattern, key, curr_player, item.dir, curr_capture);
-        })
-      })
+        }
+      }
       if (new_node) {
         n_array.push(new_node);
       }
     }
-  })
+  }
   // console.log('n_array', n_array);
   return n_array;
 }
@@ -116,9 +118,9 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
   const allBlock = [];
   const overlapped_cells = [];
 
-  _.map(cells_to_eval, (cell) => {
-    if (_.find(overlapped_cells, (o_cell) => o_cell.id === cell.id)) return; // skip overlapped cells as it is already scanned and included in the block
-    if (cell.isIllegal) return;
+  for (let cell of cells_to_eval) {
+    if (_.find(overlapped_cells, (o_cell) => o_cell.id === cell.id)) continue; // skip overlapped cells as it is already scanned and included in the block
+    if (cell.isIllegal) continue;
     const { y, x } = cell;
     let next = { y, x };
     let start = { y, x };
@@ -130,7 +132,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
 
     for (let i = 1; i < CONNECT_N + f_offset; i++) { // scan 4 cell forward to get all the cell content
       // if (forward) {
-      next = getCoordinate(y, x, i, dir, true);
+      next = getCoordinate(y, x, i, dir, true, true);
       const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
 
       if (overlapped_cell) {
@@ -146,7 +148,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
     }
     for (let i = 1; i < CONNECT_N + b_offset; i++) { // scan 4 cell backward to get all the cell content
       // if (backward) {
-      next = getCoordinate(y, x, i, dir, false);
+      next = getCoordinate(y, x, i, dir, false, true);
       const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
 
       if (overlapped_cell) {
@@ -168,7 +170,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
       dir,
       block
     });
-  })
+  }
   // console.log(`dir ${dir} allBlock`, allBlock);
   return allBlock;
 }
@@ -197,6 +199,7 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
   b_node = _.take(
     _.orderBy(
       _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner === curr_player),
+      // _.filter([...h_node], (node) => node.owner === curr_player),
       ['score'],
       ['desc']
     ), take_best
@@ -204,6 +207,7 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
   t_node = _.take(
     _.orderBy(
       _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner !== curr_player),
+      // _.filter([...h_node], (node) => node.owner === curr_player),
       ['score'],
       ['asc']
     ), take_best
@@ -215,7 +219,7 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
     _.orderBy(
       _.map([...b_node, ...t_node], (node) => {
         node.priority = _.findIndex(patterns_index, (category) => category === node.category);
-        return node
+        return node;
       }),
       ['priority'],
       ['asc']

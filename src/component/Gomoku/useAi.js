@@ -58,6 +58,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     let curr_adj = _.cloneDeep(adj_cells);
     let best_move = { y: 0, x: 0 }
     let boardCopy = _.cloneDeep(board);
+    let take_best = (gameTurn + depth < 3) && (aiPlayer === 'X') ? 4 : TAKE_BEST_N;
     if (depth === 5) {
       // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
       // printBoard(boardCopy.board, curr_adj, []);
@@ -69,7 +70,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       curr_adj = generateAdjacentFromLastOccupiedCell(boardCopy.board, curr_player, adj_cells, last_move);
     }
     // console.log('curr_adj', curr_adj);
-    const node = evaluteCells(boardCopy, curr_player, curr_adj, curr_capture, TAKE_BEST_N);
+    const node = evaluteCells(boardCopy, curr_player, curr_adj, curr_capture, take_best);
     const list = generatePotentialList(node);
     if (depth === 0) setBCell(list);
     // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
@@ -82,7 +83,6 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     if (isMaximize) {
       let best = MIN;
       for (let i = 0; i < list.length; i++) {
-        // _.map(list, (cell) => {
         const cell = list[i];
         const prevBoard = _.cloneDeep(boardCopy);
         const prevAdj = _.cloneDeep(curr_adj);
@@ -104,7 +104,6 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
         if (beta <= alpha)
           break;
         // console.log('best max', best, 'depth ', depth);
-        // })
       }
       if (depth === 0) return best_move;
       return best;
@@ -113,7 +112,6 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       let best = MAX;
 
       for (let i = 0; i < list.length; i++) {
-        // _.map(list, (cell) => {
         const cell = list[i];
         const prevBoard = _.cloneDeep(boardCopy);
         const prevAdj = _.cloneDeep(curr_adj);
@@ -135,7 +133,6 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
         if (beta <= alpha)
           break;
         // console.log('best min', best, 'depth ', depth);
-        // })
       }
       if (depth === 0) return best_move;
       return best;
@@ -152,7 +149,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
   }
 
   const getBestMove = () => {
-    console.log('AI turn test');
+    // console.log('AI turn test');
     if (gameTurn === 0) {
       const y = Math.round(BOARD_SIZE / 2) - 1;
       const x = Math.round(BOARD_SIZE / 2) - 1;

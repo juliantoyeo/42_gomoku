@@ -60,7 +60,8 @@ export const getCellFromNode = (node, index) => {
 
 const generateCell = (nodes) => {
   let newList = [];
-  _.map(nodes, (node) => {
+
+  for (let node of nodes) {
     for (let i = 0; i < node.pattern.length; i++) {
       if (node.pattern[i] === 0) {
         let new_cell = getCellFromNode(node, i);
@@ -72,7 +73,8 @@ const generateCell = (nodes) => {
         }
       }
     }
-  })
+  }
+
   return _.uniqBy(newList, 'id');
 }
 

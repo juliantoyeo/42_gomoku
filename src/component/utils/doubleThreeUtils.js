@@ -20,10 +20,10 @@ const manualCheck = (curr_board, curr_player, cell, dir) => {
   let pattern_found = null;
   let partner_cells = [];
 
-  const next_1 = getCoordinate(y, x, 1, dir, true);
-  const next_2 = getCoordinate(y, x, 2, dir, true);
-  const prev_1 = getCoordinate(y, x, 1, dir, false);
-  const prev_2 = getCoordinate(y, x, 2, dir, false);
+  const next_1 = getCoordinate(y, x, 1, dir, true, false);
+  const next_2 = getCoordinate(y, x, 2, dir, true, false);
+  const prev_1 = getCoordinate(y, x, 1, dir, false, false);
+  const prev_2 = getCoordinate(y, x, 2, dir, false, false);
 
   if (curr_board[next_1.y]?.[next_1.x] === curr_player && curr_board[next_2.y]?.[next_2.x] === '' &&
     curr_board[prev_1.y]?.[prev_1.x] === curr_player && curr_board[prev_2.y]?.[prev_2.x] === '') {
@@ -51,14 +51,14 @@ const findPattern = (curr_board, curr_player, cell, dir, isForward) => {
   let partner_cells = null;
 
 
-  next = getCoordinate(y, x, 1, dir, !isForward);
+  next = getCoordinate(y, x, 1, dir, !isForward, false);
   if (curr_board[next.y]?.[next.x] === '') {
     for (let element of doubleThreePattern) {
       partner_cells = [cell];
       pattern = element.pattern;
       let i = 2;
       while (i < pattern.length) {
-        next = getCoordinate(y, x, i - 1, dir, isForward);
+        next = getCoordinate(y, x, i - 1, dir, isForward, false);
         current_cell = curr_board[next.y]?.[next.x];
         // console.log('next', next, 'current_cell', current_cell);
         // if (!(pattern[i] === 0 && current_cell === '') && !(pattern[i] === 1 && current_cell === curr_player))
@@ -81,8 +81,8 @@ const findPattern = (curr_board, curr_player, cell, dir, isForward) => {
         pattern_found = element.category;
       }
       else if (pattern_index === 2 && i === 4) {
-        const next_1 = getCoordinate(y, x, 2, dir, !isForward);
-        const next_2 = getCoordinate(y, x, 3, dir, !isForward);
+        const next_1 = getCoordinate(y, x, 2, dir, !isForward, false);
+        const next_2 = getCoordinate(y, x, 3, dir, !isForward, false);
         // console.log('pattern_index', pattern_index);
 
         // _,_,0,1,1,1,0,_,_  else x + 1 === x, x - 1 === x, x + 2 === 0, x - 2 === 0

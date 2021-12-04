@@ -67,13 +67,22 @@ const evaluate = (curr_board, curr_player, dir) => {
     for (let x = 0; x < col_size; x++) {
       let new_node = null;
 
-      _.map(patterns, (category, key) => {
-        if (new_node) return;
-        _.map(category, (pattern) => {
-          if (new_node) return;
+      // _.map(patterns, (category, key) => {
+      //   if (new_node) return;
+      //   _.map(category, (pattern) => {
+      //     if (new_node) return;
+      //     new_node = getNodeFromPattern(y, x, pattern, key, curr_board, curr_player, dir);
+      //   })
+      // })
+
+      for (let key in patterns) {
+        if (new_node) break;
+        for (let pattern of patterns[key]) {
+          if (new_node) break;
           new_node = getNodeFromPattern(y, x, pattern, key, curr_board, curr_player, dir);
-        })
-      })
+        }
+      }
+
       if (new_node) {
         n_array.push(new_node);
       }

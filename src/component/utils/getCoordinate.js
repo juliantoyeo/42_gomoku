@@ -1,6 +1,6 @@
 import { getCoordinateId } from './boardUtils';
 
-export const getCoordinate = (y, x, index, dir, isForward) => {
+export const getCoordinate = (y, x, index, dir, isForward, shouldGetId) => {
   let next = { y: y, x: x };
 
   if (dir === 'h') {
@@ -20,7 +20,7 @@ export const getCoordinate = (y, x, index, dir, isForward) => {
     else next = { y: y + index, x: x - index };
   }
   return ({
-    id: getCoordinateId(next.y, next.x),
+    id: shouldGetId ? getCoordinateId(next.y, next.x) : '',
     y: next.y,
     x: next.x
   })
