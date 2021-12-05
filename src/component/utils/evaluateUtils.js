@@ -136,6 +136,7 @@ const evaluate = (blocks, curr_player, adj_cells, curr_capture) => {
   // console.log('evaluate blocks', blocks);
 
   for (let item of blocks) {
+    if (item.isEmptyBlock) continue;
     for (let i = 0; i < item.block.length - 1; i++) {
       let new_node = null;
       // console.log(`evaluate ${i} item`, item);
@@ -164,6 +165,8 @@ const evaluate = (blocks, curr_player, adj_cells, curr_capture) => {
   return n_array;
 }
 
+// const calculateDistance
+
 const getBlock = (curr_board, adj_cells, dir) => {
   const allBlock = [];
   const overlapped_cells = [];
@@ -178,6 +181,10 @@ const getBlock = (curr_board, adj_cells, dir) => {
     let b_offset = 0;
     // let backward = true;
     // let forward = true;
+    let consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
+    let isEmptyBlock = true;
+    let selectedCell = null;
+    // let firstCell = null;
     let block = [curr_board[y][x]];
 
     for (let i = 1; i < CONNECT_N + f_offset; i++) { // scan 4 cell forward to get all the cell content
@@ -190,12 +197,25 @@ const getBlock = (curr_board, adj_cells, dir) => {
         overlapped_cells.push(overlapped_cell);
         f_offset = i;
       }
-      if (typeof curr_board[next.y]?.[next.x] !== 'undefined') {
-        block = [...block, curr_board[next.y][next.x]]
+      selectedCell = curr_board[next.y]?.[next.x];
+      if (typeof selectedCell !== 'undefined') {
+        if (selectedCell !== '') {
+          // if (!firstCell) firstCell = next;
+          consecutive_empty = 0;
+          isEmptyBlock = false;
+        }
+        else {
+          consecutive_empty++;
+        }
+        if (consecutive_empty === 3) break;
+        block = [...block, selectedCell];
       }
       else break;
+
+      
       // }
     }
+    consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
     for (let i = 1; i < CONNECT_N + b_offset; i++) { // scan 4 cell backward to get all the cell content
       // if (backward) {
       next = getCoordinate(y, x, i, dir, false, true);
@@ -206,19 +226,44 @@ const getBlock = (curr_board, adj_cells, dir) => {
         overlapped_cells.push(overlapped_cell);
         b_offset = i;
       }
-      if (typeof curr_board[next.y]?.[next.x] !== 'undefined') {
-        block = [curr_board[next.y][next.x], ...block];
+      selectedCell = curr_board[next.y]?.[next.x];
+      if (typeof selectedCell !== 'undefined') {
+        if (selectedCell !== '') {
+          // firstCell = next;
+          consecutive_empty = 0;
+          isEmptyBlock = false;
+        }
+        else {
+          consecutive_empty++;
+        }
+        if (consecutive_empty === 3) break;
+        block = [selectedCell, ...block];
         start = next;
       }
       else break;
+      
       // }
     }
-
+    // if (firstCell) {
+    //   let n_to_trim = 0;
+    //   const prev_start = { y: start.y, x: start.x };
+    //   const prev_2 = getCoordinate(firstCell.y, firstCell.x, 2, dir, false, false);
+    //   if (typeof curr_board[prev_2.y]?.[prev_2.x]  !== 'undefined') {
+    //     start = prev_2;
+    //   }
+    //   else {
+    //     const prev_1 = getCoordinate(firstCell.y, firstCell.x, 1, dir, false, false);
+    //     if (typeof curr_board[prev_1.y]?.[prev_1.x]  !== 'undefined') start = prev_1;
+    //     else start = firstCell;
+    //   }
+    //   console.log('firstCell', firstCell, 'prev_2', prev_2, 'start', start);
+    // }
     // console.log(`dir ${dir} scanned y: ${y}, x: ${x} `, block);
     allBlock.push({
       start: { y: start.y, x: start.x },
       dir,
-      block
+      block,
+      isEmptyBlock
     });
   }
   // console.log(`dir ${dir} allBlock`, allBlock);
@@ -278,6 +323,7 @@ export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, t
   const combinedNode = _.take(
     _.orderBy(
       [...d_node_1, ...d_node_2, ...h_node, ...v_node],
+      // [...h_node],
       ['priority', 'score'],
       ['asc', 'desc']
     ), take_best
