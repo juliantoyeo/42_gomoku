@@ -17,7 +17,6 @@ import {
 } from '../utils/boardUtils';
 
 import { checkWin } from '../utils/checkWin';
-import { checkScore } from '../utils/checkScore';
 import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
 import { evaluteCells } from '../utils/evaluateUtils';
 import { generatePotentialList } from '../utils/cellUtils';
@@ -31,14 +30,14 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
   // const [tmpAdjacentCells, setTmpAdjacentCells] = useState([]);
 
   const minimax = (board, adj_cells, curr_player, curr_capture, depth, isMaximize, last_move, alpha, beta) => {
-    let curr_adj = _.cloneDeep(adj_cells);
     let best_move = { y: 0, x: 0 }
     let boardCopy = _.cloneDeep(board);
+    let curr_adj = _.cloneDeep(adj_cells);
     let take_best = (gameTurn + depth < 3) && (aiPlayer === 'X') ? 4 : TAKE_BEST_N;
     if (depth === 5 || checkWin(boardCopy, curr_player, curr_capture, last_move)) {
       // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
       // printBoard(boardCopy.board, curr_adj, []);
-      const node = evaluateBoard(boardCopy.board, aiPlayer, take_best);
+      const node = evaluateBoard(boardCopy.board, curr_adj, aiPlayer, take_best);
       // console.log('last node', node);
       return node[0].score;
     }
@@ -46,7 +45,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       curr_adj = generateAdjacentFromLastOccupiedCell(boardCopy.board, curr_player, adj_cells, last_move);
     }
     // console.log('curr_adj', curr_adj);
-    const node = evaluteCells(boardCopy, curr_player, curr_adj, curr_capture, take_best);
+    const node = evaluteCells(boardCopy.board, curr_player, curr_adj, curr_capture, take_best);
     const list = generatePotentialList(node);
     if (depth === 0) setBCell(list);
     // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);

@@ -107,3 +107,8 @@ export const PlayerNameContainer = styled(GameStatus)`
   margin-top: 0px;
   background-color: ${props => props.active ? '#339933' : 'black'};
 `;
+
+export const TimerDiv = styled.div`
+  background-color: ${props => props.time >= 0.5 ? 'red' : 'black'};
+  /* background-color: red; */
+`;

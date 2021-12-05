@@ -1,21 +1,21 @@
 import _ from 'lodash';
 import { getCoordinateId } from './boardUtils';
 import { checkIllegalMoveCapture, checkIfCaptureMove } from './captureUtils';
-import { checkIllegalMoveDoubleThree } from './doubleThreeUtils';
+import { checkMoveDoubleThree } from './doubleThreeUtils';
 
-const removeIllegalMove = (curr_board, curr_player, adj_cells) => {
+const checkSpecialMove = (curr_board, curr_player, adj_cells) => {
   for (let i = 0; i < adj_cells.length; i++) {
     adj_cells[i].isIllegal = false;
     if (checkIllegalMoveCapture(curr_board, curr_player, adj_cells[i])) {
       adj_cells[i].isIllegal = true;
     }
     else {
-      if (checkIfCaptureMove(curr_board, curr_player, adj_cells[i])) {
-        adj_cells[i].isCapture = true;
-      }
-      else if (checkIllegalMoveDoubleThree(curr_board, curr_player, adj_cells[i])) {
+      const isCapture = checkIfCaptureMove(curr_board, curr_player, adj_cells[i]);
+      const isDoubleThree = checkMoveDoubleThree(curr_board, curr_player, adj_cells[i]);
+      adj_cells[i].isCapture = isCapture;
+      adj_cells[i].isDoubleThree = isDoubleThree;
+      if (isCapture === false && isDoubleThree === true)
         adj_cells[i].isIllegal = true;
-      }
     }
   }
   return (adj_cells);
@@ -36,7 +36,7 @@ export const generateAdjacentFromAllOccupiedCell = (curr_board, curr_player, mov
     if (curr_board[y + 1]?.[x + 1] === '') new_adjacent_cells.push({ id: getCoordinateId(y + 1, x + 1), y: y + 1, x: x + 1 });
   }
   new_adjacent_cells = _.uniqBy(new_adjacent_cells, 'id');
-  new_adjacent_cells = removeIllegalMove(curr_board, curr_player, new_adjacent_cells);
+  new_adjacent_cells = checkSpecialMove(curr_board, curr_player, new_adjacent_cells);
   return new_adjacent_cells;
 }
 
@@ -55,6 +55,6 @@ export const generateAdjacentFromLastOccupiedCell = (curr_board, curr_player, ad
     if (curr_board[y + 1]?.[x + 1] === '') new_adjacent_cells.push({ id: getCoordinateId(y + 1, x + 1), y: y + 1, x: x + 1 });
   }
   new_adjacent_cells = _.uniqBy(new_adjacent_cells, 'id');
-  new_adjacent_cells = removeIllegalMove(curr_board, curr_player, new_adjacent_cells);
+  new_adjacent_cells = checkSpecialMove(curr_board, curr_player, new_adjacent_cells);
   return new_adjacent_cells;
 }

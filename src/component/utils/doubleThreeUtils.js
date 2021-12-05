@@ -1,6 +1,4 @@
-import _ from 'lodash';
-import { dir_array, patterns, doubleThreePattern } from './boardUtils';
-// import { getNextCoordinate } from './evaluateUtils';
+import { dir_array, doubleThreePattern } from './boardUtils';
 import { getCoordinate } from './getCoordinate';
 
 // _,_,_,0,1,1,1,0,_   if left = 0, check pattern[1] onward dir forward pattern[2] === x + 2 ?
@@ -28,7 +26,6 @@ const manualCheck = (curr_board, curr_player, cell, dir) => {
   if (curr_board[next_1.y]?.[next_1.x] === curr_player && curr_board[next_2.y]?.[next_2.x] === '' &&
     curr_board[prev_1.y]?.[prev_1.x] === curr_player && curr_board[prev_2.y]?.[prev_2.x] === '') {
     pattern_found = 'double_open3';
-    // partner_cells.push({ y: next_1.y, x: next_1.x });
     partner_cells = [
       { y: prev_1.y, x: prev_1.x },
       cell,
@@ -61,9 +58,6 @@ const findPattern = (curr_board, curr_player, cell, dir, isForward) => {
         next = getCoordinate(y, x, i - 1, dir, isForward, false);
         current_cell = curr_board[next.y]?.[next.x];
         // console.log('next', next, 'current_cell', current_cell);
-        // if (!(pattern[i] === 0 && current_cell === '') && !(pattern[i] === 1 && current_cell === curr_player))
-        //   break;
-        // i++;
         // console.log('pattern_index', pattern_index, 'i', i);
         if (pattern[i] === 0 && current_cell === '') {
           i++;
@@ -85,9 +79,6 @@ const findPattern = (curr_board, curr_player, cell, dir, isForward) => {
         const next_2 = getCoordinate(y, x, 3, dir, !isForward, false);
         // console.log('pattern_index', pattern_index);
 
-        // _,_,0,1,1,1,0,_,_  else x + 1 === x, x - 1 === x, x + 2 === 0, x - 2 === 0
-        // _,0,1,0,1,1,0,_,_ 
-        // _,_,0,1,1,0,1,0,_ 
         if (curr_board[next_1.y]?.[next_1.x] === curr_player && curr_board[next_2.y]?.[next_2.x] === '') {
           // console.log(curr_board[next_1.y]?.[next_1.x], curr_board[next_2.y]?.[next_2.x]);
           pattern_found = 'broken3_1';
@@ -135,7 +126,6 @@ const findPatternInAllDirection = (curr_board, curr_player, cell, skip_dir) => {
     // console.log('dir', dir, 'd_open_3_count', d_open_3_count, 'broken_3_count', broken_3_count);
   }
   total = d_open_3_count + broken_3_count;
-  // return total;
   // console.log('result', result);
   if (result)
     return { total, ...result };
@@ -143,7 +133,7 @@ const findPatternInAllDirection = (curr_board, curr_player, cell, skip_dir) => {
     return null;
 }
 
-export const checkIllegalMoveDoubleThree = (curr_board, curr_player, cell) => {
+export const checkMoveDoubleThree = (curr_board, curr_player, cell) => {
   let result = null;
   let total = 0;
 
@@ -167,60 +157,5 @@ export const checkIllegalMoveDoubleThree = (curr_board, curr_player, cell) => {
   if (total >= 2) {
     return true;
   }
-  // const node = evaluteCells(curr_board, curr_player, cells_to_eval, curr_capture, 2);
-  // console.log('node', node);
-  // const horizontalBlock = getBlock(curr_board, curr_player, cell, 'h');
-  // const verticalBlock = getBlock(curr_board, curr_player, cell, 'v');
-  // const diagonalBlock_1 = getBlock(curr_board, curr_player, cell, 'd_1');
-  // const diagonalBlock_2 = getBlock(curr_board, curr_player, cell, 'd_2');
-  // console.log('horizontalBlock', horizontalBlock);
-  // console.log('verticalBlock', verticalBlock);
-  // console.log('diagonalBlock_1', diagonalBlock_1);
-  // console.log('diagonalBlock_2', diagonalBlock_2);
-
-
-  // // horizontal
-  // if (curr_board[y]?.[x - 1] === '') {
-  //   if (curr_board[y]?.[x + 1] === curr_player) {
-  //     if (curr_board[y]?.[x + 2] === curr_player && curr_board[y]?.[x + 3] === '')
-  //       d_open_3_count = d_open_3_count + 1;
-  //     else if (curr_board[y]?.[x + 2] === '' && curr_board[y]?.[x + 3] === curr_player && curr_board[y]?.[x + 4] === '')
-  //       broken_3_count = broken_3_count + 1;
-  //   }
-  //   else if (curr_board[y]?.[x + 1] === '' && curr_board[y]?.[x + 2] === curr_player && curr_board[y]?.[x + 3] === curr_player && curr_board[y]?.[x + 4] === '')
-  //     broken_3_count = broken_3_count + 1;
-  // }
-
-  // else if (curr_board[y]?.[x + 1] === '' && curr_board[y]?.[x - 1] === curr_player) {
-  //   if (curr_board[y]?.[x - 2] === curr_player && curr_board[y]?.[x - 3] === '') d_open_3_count = d_open_3_count + 1;
-  //   else if (curr_board[y]?.[x - 2] === '' && curr_board[y]?.[x - 3] === curr_player && curr_board[y]?.[x - 4] === '') broken_3_count = broken_3_count + 1;
-  // }
-  // else if (curr_board[y]?.[x + 1] === curr_player && curr_board[y]?.[x - 1] === curr_player && curr_board[y]?.[x + 2] === '' && curr_board[y]?.[x - 2] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // // vertical
-  // if (curr_board[y - 1]?.[x] === '' && curr_board[y + 1]?.[x] === curr_player && curr_board[y + 2]?.[x] === curr_player && curr_board[y + 3]?.[x] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // else if (curr_board[y + 1]?.[x] === '' && curr_board[y - 1]?.[x] === curr_player && curr_board[y - 2]?.[x] === curr_player && curr_board[y - 3]?.[x] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // else if (curr_board[y + 1]?.[x] === curr_player && curr_board[y - 1]?.[x] === curr_player && curr_board[y + 2]?.[x] === '' && curr_board[y - 2]?.[x] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // // d_1
-  // if (curr_board[y - 1]?.[x - 1] === '' && curr_board[y + 1]?.[x + 1] === curr_player && curr_board[y + 2]?.[x + 2] === curr_player && curr_board[y + 3]?.[x + 3] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // else if (curr_board[y + 1]?.[x + 1] === '' && curr_board[y - 1]?.[x - 1] === curr_player && curr_board[y - 2]?.[x - 2] === curr_player && curr_board[y - 3]?.[x - 3] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // else if (curr_board[y + 1]?.[x + 1] === curr_player && curr_board[y - 1]?.[x - 1] === curr_player && curr_board[y + 2]?.[x + 2] === '' && curr_board[y - 2]?.[x - 2] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // // d_2
-  // if (curr_board[y - 1]?.[x + 1] === '' && curr_board[y + 1]?.[x - 1] === curr_player && curr_board[y + 2]?.[x - 2] === curr_player && curr_board[y + 3]?.[x - 3] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // else if (curr_board[y + 1]?.[x - 1] === '' && curr_board[y - 1]?.[x + 1] === curr_player && curr_board[y - 2]?.[x + 2] === curr_player && curr_board[y - 3]?.[x + 3] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-  // else if (curr_board[y + 1]?.[x - 1] === curr_player && curr_board[y - 1]?.[x + 1] === curr_player && curr_board[y + 2]?.[x - 2] === '' && curr_board[y - 2]?.[x + 2] === '')
-  //   d_open_3_count = d_open_3_count + 1;
-
-  // console.log('d_open_3_count', d_open_3_count);
-  // console.log('broken_3_count', broken_3_count);
-  // if (d_open_3_count >= 2) return true;
   return false;
 };

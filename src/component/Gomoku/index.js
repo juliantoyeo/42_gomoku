@@ -16,13 +16,12 @@ import {
 } from '../utils/boardUtils';
 import { useAi } from './useAi';
 import { checkWin } from '../utils/checkWin';
-import { checkScore } from '../utils/checkScore';
 import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
 import { evaluteCells } from '../utils/evaluateUtils';
 // import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
 import { generateBTcell } from '../utils/cellUtils';
 import { checkCapture, checkIfCaptureMove, checkIllegalMoveCapture } from '../utils/captureUtils';
-import { checkIllegalMoveDoubleThree } from '../utils/doubleThreeUtils';
+import { checkMoveDoubleThree } from '../utils/doubleThreeUtils';
 
 import {
   MainContainer,
@@ -34,7 +33,8 @@ import {
   GameStatus,
   StyledButton,
   PlayerTurnContainer,
-  PlayerNameContainer
+  PlayerNameContainer,
+  TimerDiv
 } from './style';
 import Board from '../board';
 
@@ -142,7 +142,7 @@ const Gomoku = () => {
         return;
       }
       else if (!checkIfCaptureMove(newBoard.board, currentPlayer, { y, x })) {
-        if (checkIllegalMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
+        if (checkMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
           setErrorMessage('Illegal move that will result in double three');
           return;
         }
@@ -172,7 +172,6 @@ const Gomoku = () => {
       );
       setAdjacentCells(newAdjacentCells);
       setMoveRecord((prev) => [...prev, currentMove]);
-      // checkScore({ board: newBoard.board, currentPlayer, curY: y, curX: x });
       // if (checkWin(newBoard, currentPlayer, result.captured, y, x))
       //   setGameStatus(currentPlayer);
       // else if (newBoard.available === 0) setGameStatus('tie');
@@ -204,6 +203,7 @@ const Gomoku = () => {
       (cell) => cell.y === y && cell.x === x
     );
     if (selectedCell?.isIllegal) return '#993333';
+    else if (selectedCell?.isCapture) return '#339999';
     else if (selectedCell) return '#333399';
     return null;
   };
@@ -244,7 +244,7 @@ const Gomoku = () => {
             </GameStatus>
             <GameStatus>
               <div>AI time usage</div>
-              <div>{(timer / 1000).toFixed(3)} sec</div>
+              <TimerDiv time={(timer / 1000)}>{(timer / 1000).toFixed(3)} sec</TimerDiv>
             </GameStatus>
             <GameStatus>
               <div>Game turn</div>

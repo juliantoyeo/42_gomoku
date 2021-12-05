@@ -149,6 +149,7 @@ export const SCORE = {
   'win': 100,
   'double_open4': 90,
   'open4': 80,
+  'double_3': 75,
   'double_open3': 70,
   'broken3_1': 60,
   'capture': 55,
@@ -163,14 +164,15 @@ export const PRIORITY = {
   'win': 0,
   'double_open4': 1,
   'open4': 2,
-  'double_open3': 3,
-  'broken3_1': 4,
-  'capture': 5,
-  'broken3_2': 6,
-  'covered3': 7,
-  'open2': 8,
-  'convered2': 9,
-  'close1': 10
+  'double_3': 3,
+  'double_open3': 4,
+  'broken3_1': 5,
+  'capture': 6,
+  'broken3_2': 7,
+  'covered3': 8,
+  'open2': 9,
+  'convered2': 10,
+  'close1': 11
 }
 
 export const getCoordinateId = (y, x) => {
@@ -186,8 +188,8 @@ const getCell = (board, adj_cells, list, { y, x }) => {
   const selectedBcell = _.find(list, (cell) => cell.y === y && cell.x === x);
   if (selectedCell?.isIllegal) return 'I';
   else if (selectedBcell?.isCapturingCell) return 'C';
-  else if (selectedBcell) return '\u001b[36mB\u001b[37m';
-  // else if (selectedCell) return '\u001b[31ma\u001b[37m';
+  // else if (selectedBcell) return 'B';
+  // else if (selectedCell) return 'A';
   else if (board[y][x] === '') return '_';
   return board[y][x];
 };

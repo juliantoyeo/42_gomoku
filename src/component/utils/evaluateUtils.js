@@ -11,10 +11,11 @@ import {
 
 import { getCoordinate } from './getCoordinate';
 
-const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_capture) => {
+const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, adj_cells, curr_capture) => {
   let owner = '';
   let enemy = '';
   let i = 0;
+  let potential_capture_index = 0;
 
   // if (key !== 'capture' || dir !== 'v') return null;
   // console.log('checking item.block', item.block, 'offset', offset, 'pattern', pattern);
@@ -38,6 +39,10 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
       }
     }
 
+    if (key === 'capture' && cell === '') {
+      potential_capture_index = i;
+    }
+
     if (!(pattern[i] === 0 && cell === '') &&
       !(owner !== '' && pattern[i] === 1 && cell === owner) &&
       !(owner !== '' && pattern[i] === 2 && cell === enemy)
@@ -54,6 +59,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
     let start_y = item.start.y;
     let start_x = item.start.x;
     let score = SCORE[key];
+    let priority = PRIORITY[key];
 
     if (dir === 'h') {
       start_x = start_x + offset;
@@ -70,9 +76,42 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
       start_x = start_x + offset;
     }
 
-    // if (key === 'capture') {
-    //   score = curr_capture[enemy] * 2 + score;
-    // }
+    if (key === 'capture') {
+      let potential_capture_cell = null;
+      if (dir === 'h') {
+        potential_capture_cell = {
+          y: start_y,
+          x: start_x + potential_capture_index
+        };
+      }
+      else if (dir === 'v') {
+        potential_capture_cell = {
+          y: start_y + potential_capture_index,
+          x: start_x
+        };
+      }
+      else if (dir === 'd_1') {
+        potential_capture_cell = {
+          y: start_y + potential_capture_index,
+          x: start_x + potential_capture_index
+        };
+      }
+      else if (dir === 'd_2') {
+        potential_capture_cell = {
+          y: start_y - potential_capture_index,
+          x: start_x + potential_capture_index
+        };
+      }
+      // score = curr_capture[enemy] * 2 + score;
+      const capture_cell_id = getCoordinateId(potential_capture_cell.y, potential_capture_cell.x);
+      const selected_adj_cell = _.find(adj_cells, (cell) => cell.id === capture_cell_id);
+      if (selected_adj_cell?.isDoubleThree) {
+        score = SCORE['double_3'];
+        priority = PRIORITY['double_3'];
+      }
+      
+      // console.log('start_y', start_y, 'start_x', start_x, 'potential_capture_cell', potential_capture_cell, 'capture_cell_id', capture_cell_id, 'selected_adj_cell', selected_adj_cell);
+    }
     if (owner !== curr_player) {
       score = score * -1;
     }
@@ -82,7 +121,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
       pattern: pattern,
       owner: owner,
       category: key,
-      priority: PRIORITY[key],
+      priority: priority,
       dir: dir,
       score: score
     });
@@ -91,7 +130,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
   return null;
 }
 
-const evaluate = (blocks, curr_player, curr_capture) => {
+const evaluate = (blocks, curr_player, adj_cells, curr_capture) => {
   const n_array = [];
   let best_node = null;
   // console.log('evaluate blocks', blocks);
@@ -105,7 +144,7 @@ const evaluate = (blocks, curr_player, curr_capture) => {
         // console.log(`evaluate key`, key);
         for (let pattern of patterns[key]) {
           if (new_node) break;
-          new_node = getNodeFromPattern(item, i, pattern, key, curr_player, item.dir, curr_capture);
+          new_node = getNodeFromPattern(item, i, pattern, key, curr_player, item.dir, adj_cells, curr_capture);
         }
       }
       if (new_node) {
@@ -125,11 +164,11 @@ const evaluate = (blocks, curr_player, curr_capture) => {
   return n_array;
 }
 
-const getBlock = (curr_board, cells_to_eval, dir) => {
+const getBlock = (curr_board, adj_cells, dir) => {
   const allBlock = [];
   const overlapped_cells = [];
 
-  for (let cell of cells_to_eval) {
+  for (let cell of adj_cells) {
     if (_.find(overlapped_cells, (o_cell) => o_cell.id === cell.id)) continue; // skip overlapped cells as it is already scanned and included in the block
     if (cell.isIllegal) continue;
     const { y, x } = cell;
@@ -144,7 +183,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
     for (let i = 1; i < CONNECT_N + f_offset; i++) { // scan 4 cell forward to get all the cell content
       // if (forward) {
       next = getCoordinate(y, x, i, dir, true, true);
-      const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
+      const overlapped_cell = _.find(adj_cells, (cell) => cell.id === next.id);
 
       if (overlapped_cell) {
         if (overlapped_cell.isIllegal) break;
@@ -160,7 +199,7 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
     for (let i = 1; i < CONNECT_N + b_offset; i++) { // scan 4 cell backward to get all the cell content
       // if (backward) {
       next = getCoordinate(y, x, i, dir, false, true);
-      const overlapped_cell = _.find(cells_to_eval, (cell) => cell.id === next.id);
+      const overlapped_cell = _.find(adj_cells, (cell) => cell.id === next.id);
 
       if (overlapped_cell) {
         if (overlapped_cell.isIllegal) break;
@@ -188,21 +227,21 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
 
 
 
-export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_capture, take_best) => {
+export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, take_best) => {
   // let b_node = [];
   // let t_node = [];
-  const horizontalBlock = getBlock(curr_board.board, cells_to_eval, 'h');
-  const verticalBlock = getBlock(curr_board.board, cells_to_eval, 'v');
-  const diagonalBlock_1 = getBlock(curr_board.board, cells_to_eval, 'd_1');
-  const diagonalBlock_2 = getBlock(curr_board.board, cells_to_eval, 'd_2');
+  const horizontalBlock = getBlock(curr_board, adj_cells, 'h');
+  const verticalBlock = getBlock(curr_board, adj_cells, 'v');
+  const diagonalBlock_1 = getBlock(curr_board, adj_cells, 'd_1');
+  const diagonalBlock_2 = getBlock(curr_board, adj_cells, 'd_2');
   // console.log('horizontalBlock', horizontalBlock);
   // console.log('verticalBlock', verticalBlock);
   // console.log('diagonalBlock_1', diagonalBlock_1);
   // console.log('diagonalBlock_2', diagonalBlock_2);
-  const h_node = evaluate(horizontalBlock, curr_player, curr_capture);
-  const v_node = evaluate(verticalBlock, curr_player, curr_capture);
-  const d_node_1 = evaluate(diagonalBlock_1, curr_player, curr_capture);
-  const d_node_2 = evaluate(diagonalBlock_2, curr_player, curr_capture);
+  const h_node = evaluate(horizontalBlock, curr_player, adj_cells, curr_capture);
+  const v_node = evaluate(verticalBlock, curr_player, adj_cells, curr_capture);
+  const d_node_1 = evaluate(diagonalBlock_1, curr_player, adj_cells, curr_capture);
+  const d_node_2 = evaluate(diagonalBlock_2, curr_player, adj_cells, curr_capture);
   // console.log('h_node', h_node);
   // console.log('v_node', v_node);
   // console.log('d_node_1', d_node_1);
@@ -236,7 +275,7 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
   //     ['asc']
   //   ), take_best
   // );
-  let combinedNode = _.take(
+  const combinedNode = _.take(
     _.orderBy(
       [...d_node_1, ...d_node_2, ...h_node, ...v_node],
       ['priority'],
