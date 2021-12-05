@@ -12,7 +12,7 @@ import {
 
 import { getDiagonalBoard } from './getDiagonalBoard';
 
-const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir, adj_cells) => {
+const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir, adj_cells, curr_capture) => {
   let owner = '';
   let enemy = '';
   let i = 0;
@@ -93,7 +93,7 @@ const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir, ad
           x: start_x + potential_capture_index
         };
       }
-      // score = curr_capture[enemy] * 2 + score;
+      score = curr_capture[enemy] * 2 + score;
       const capture_cell_id = getCoordinateId(potential_capture_cell.y, potential_capture_cell.x);
       const selected_adj_cell = _.find(adj_cells, (cell) => cell.id === capture_cell_id);
       if (selected_adj_cell?.isDoubleThree) {
@@ -122,7 +122,7 @@ const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir, ad
   return null;
 }
 
-const evaluate = (curr_board, curr_player, adj_cells, dir) => {
+const evaluate = (curr_board, curr_player, adj_cells, curr_capture, dir) => {
   let best_node = null;
   const n_array = [];
   const row_size = dir === 'd_1' || dir === 'd_2' ? DIAGONAL_ROW_SIZE : BOARD_SIZE;
@@ -137,7 +137,7 @@ const evaluate = (curr_board, curr_player, adj_cells, dir) => {
         if (new_node) break;
         for (let pattern of patterns[key]) {
           if (new_node) break;
-          new_node = getNodeFromPattern(y, x, pattern, key, curr_board, curr_player, dir, adj_cells);
+          new_node = getNodeFromPattern(y, x, pattern, key, curr_board, curr_player, dir, adj_cells, curr_capture);
         }
       }
 
@@ -154,15 +154,15 @@ const evaluate = (curr_board, curr_player, adj_cells, dir) => {
   return n_array;
 }
 
-export const evaluateBoard = (currentBoard, adj_cells, currentPlayer, take_best) => {
+export const evaluateBoard = (currentBoard, currentPlayer, adj_cells, curr_capture, take_best) => {
   // let b_node = [];
   // let t_node = [];
   const v_board = _.zip(...currentBoard);
   const d_board = getDiagonalBoard(currentBoard);
-  const h_node = evaluate(currentBoard, currentPlayer, adj_cells, 'h');
-  const v_node = evaluate(v_board, currentPlayer, adj_cells, 'v');
-  const d_node_1 = evaluate(d_board.d_1, currentPlayer, adj_cells, 'd_1');
-  const d_node_2 = evaluate(d_board.d_2, currentPlayer, adj_cells, 'd_2');
+  const h_node = evaluate(currentBoard, currentPlayer, adj_cells, curr_capture, 'h');
+  const v_node = evaluate(v_board, currentPlayer, adj_cells, curr_capture, 'v');
+  const d_node_1 = evaluate(d_board.d_1, currentPlayer, adj_cells, curr_capture, 'd_1');
+  const d_node_2 = evaluate(d_board.d_2, currentPlayer, adj_cells, curr_capture, 'd_2');
   // b_node = _.take(
   //   _.orderBy(
   //     _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner === currentPlayer),
@@ -191,8 +191,8 @@ export const evaluateBoard = (currentBoard, adj_cells, currentPlayer, take_best)
   const combinedNode = _.take(
     _.orderBy(
       [...d_node_1, ...d_node_2, ...h_node, ...v_node],
-      ['priority'],
-      ['asc']
+      ['priority', 'score'],
+      ['asc', 'desc']
     ), take_best
   );
   // console.log(`b_node`, b_node);

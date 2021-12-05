@@ -70,12 +70,14 @@ const Gomoku = () => {
   );
 
   useEffect(() => {
-    if (currentPlayer === aiPlayer) {
-      const start = window.performance.now();
-      const bestMove = getBestMove();
-      const end = window.performance.now();
-      setTimer(end - start);
-      if (bestMove) putMark(bestMove);
+    if (gameStatus === null) {
+      if (currentPlayer === aiPlayer) {
+        const start = window.performance.now();
+        const bestMove = getBestMove();
+        const end = window.performance.now();
+        setTimer(end - start);
+        if (bestMove) putMark(bestMove);
+      }
     }
   }, [aiPlayer, currentPlayer]);
 
@@ -130,6 +132,7 @@ const Gomoku = () => {
 
   const putMark = ({ y, x }) => {
     // console.log(y, x);
+    if (gameStatus) return;
     let gameResult = null;
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);

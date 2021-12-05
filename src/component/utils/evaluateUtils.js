@@ -102,7 +102,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, adj_ce
           x: start_x + potential_capture_index
         };
       }
-      // score = curr_capture[enemy] * 2 + score;
+      score = curr_capture[enemy] * 2 + score;
       const capture_cell_id = getCoordinateId(potential_capture_cell.y, potential_capture_cell.x);
       const selected_adj_cell = _.find(adj_cells, (cell) => cell.id === capture_cell_id);
       if (selected_adj_cell?.isDoubleThree) {
@@ -278,8 +278,8 @@ export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, t
   const combinedNode = _.take(
     _.orderBy(
       [...d_node_1, ...d_node_2, ...h_node, ...v_node],
-      ['priority'],
-      ['asc']
+      ['priority', 'score'],
+      ['asc', 'desc']
     ), take_best
   );
   // console.log('combinedNode', combinedNode);

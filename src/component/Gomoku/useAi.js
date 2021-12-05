@@ -35,9 +35,9 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     let curr_adj = _.cloneDeep(adj_cells);
     let take_best = (gameTurn + depth < 3) && (aiPlayer === 'X') ? 4 : TAKE_BEST_N;
     if (depth === 5 || checkWin(boardCopy, curr_player, curr_capture, last_move)) {
+      const node = evaluateBoard(boardCopy.board, aiPlayer, curr_adj, curr_capture, take_best);
       // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
       // printBoard(boardCopy.board, curr_adj, []);
-      const node = evaluateBoard(boardCopy.board, curr_adj, aiPlayer, take_best);
       // console.log('last node', node);
       return node[0].score;
     }
@@ -131,9 +131,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       return ({ y, x });
     }
     else {
-      // const tmpAdjacentCells = _.cloneDeep(adjacentCells);
-      // setTmpAdjacentCells(_.cloneDeep(adjacentCells));
-      AiMove();
+      return AiMove();
     }
   }
 
