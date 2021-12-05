@@ -47,6 +47,11 @@ import {
 } from './style';
 import Board from '../board';
 import Menu from '../menu';
+import styled from 'styled-components';
+
+const TempGap = styled.div`
+  margin-top: 100px;
+`;
 
 const Gomoku = () => {
   const [gameStatus, setGameStatus] = useState(null);
@@ -303,10 +308,13 @@ const Gomoku = () => {
         </MainDisplayContainer>
       </MainContainer>
       {humanPlayer && board && (
-        <FlexBox>
-          <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
-          <Menu />
-        </FlexBox>
+        <>
+          <TempGap>&nbsp;</TempGap>
+          <FlexBox>
+            <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
+            <Menu />
+          </FlexBox>
+        </>
       )}
     </>
   );
