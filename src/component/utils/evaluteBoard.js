@@ -3,10 +3,11 @@ import {
   BOARD_SIZE,
   DIAGONAL_ROW_SIZE,
   TAKE_BEST_N,
+  PRIORITY,
   SCORE,
   patterns,
   patterns_index,
-} from '../boardUtils';
+} from './boardUtils';
 
 import { getDiagonalBoard } from './getDiagonalBoard';
 
@@ -49,6 +50,7 @@ const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir) =>
       pattern: pattern,
       owner: owner,
       category: key,
+      priority: PRIORITY[key],
       dir: dir,
       score: owner === curr_player ? SCORE[key] : SCORE[key] * -1
     });
@@ -58,6 +60,7 @@ const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir) =>
 }
 
 const evaluate = (curr_board, curr_player, dir) => {
+  let best_node = null;
   const n_array = [];
   const row_size = dir === 'd_1' || dir === 'd_2' ? DIAGONAL_ROW_SIZE : BOARD_SIZE;
 
@@ -66,14 +69,6 @@ const evaluate = (curr_board, curr_player, dir) => {
 
     for (let x = 0; x < col_size; x++) {
       let new_node = null;
-
-      // _.map(patterns, (category, key) => {
-      //   if (new_node) return;
-      //   _.map(category, (pattern) => {
-      //     if (new_node) return;
-      //     new_node = getNodeFromPattern(y, x, pattern, key, curr_board, curr_player, dir);
-      //   })
-      // })
 
       for (let key in patterns) {
         if (new_node) break;
@@ -84,46 +79,58 @@ const evaluate = (curr_board, curr_player, dir) => {
       }
 
       if (new_node) {
-        n_array.push(new_node);
+        if (best_node === null || best_node.priority > new_node.priority)
+          best_node = new_node;
       }
     }
   }
+  if (best_node) {
+    n_array.push(best_node);
+  }
+
   return n_array;
 }
 
-export const evaluateBoard = (currentBoard, currentPlayer) => {
-  let b_node = [];
-  let t_node = [];
+export const evaluateBoard = (currentBoard, currentPlayer, take_best) => {
+  // let b_node = [];
+  // let t_node = [];
   const v_board = _.zip(...currentBoard);
   const d_board = getDiagonalBoard(currentBoard);
   const h_node = evaluate(currentBoard, currentPlayer, 'h');
   const v_node = evaluate(v_board, currentPlayer, 'v');
   const d_node_1 = evaluate(d_board.d_1, currentPlayer, 'd_1');
   const d_node_2 = evaluate(d_board.d_2, currentPlayer, 'd_2');
-  b_node = _.take(
-    _.orderBy(
-      _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner === currentPlayer),
-      ['score'],
-      ['desc']
-    ), TAKE_BEST_N
-  );
-  t_node = _.take(
-    _.orderBy(
-      _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner !== currentPlayer),
-      ['score'],
-      ['asc']
-    ), TAKE_BEST_N
-  );
+  // b_node = _.take(
+  //   _.orderBy(
+  //     _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner === currentPlayer),
+  //     ['score'],
+  //     ['desc']
+  //   ), TAKE_BEST_N
+  // );
+  // t_node = _.take(
+  //   _.orderBy(
+  //     _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner !== currentPlayer),
+  //     ['score'],
+  //     ['asc']
+  //   ), TAKE_BEST_N
+  // );
 
+  // let combinedNode = _.take(
+  //   _.orderBy(
+  //     _.map([...b_node, ...t_node], (node) => {
+  //       node.priority = _.findIndex(patterns_index, (category) => category === node.category);
+  //       return node
+  //     }),
+  //     ['priority'],
+  //     ['asc']
+  //   ), TAKE_BEST_N
+  // );
   let combinedNode = _.take(
     _.orderBy(
-      _.map([...b_node, ...t_node], (node) => {
-        node.priority = _.findIndex(patterns_index, (category) => category === node.category);
-        return node
-      }),
+      [...d_node_1, ...d_node_2, ...h_node, ...v_node],
       ['priority'],
       ['asc']
-    ), TAKE_BEST_N
+    ), take_best
   );
   // console.log(`b_node`, b_node);
   // console.log(`t_node`, t_node);

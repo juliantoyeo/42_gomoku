@@ -21,7 +21,7 @@ import { checkScore } from '../utils/checkScore';
 import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
 import { evaluteCells } from '../utils/evaluateUtils';
 import { generatePotentialList } from '../utils/cellUtils';
-import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
+import { evaluateBoard } from '../utils/evaluteBoard';
 import { checkCapture } from '../utils/captureUtils';
 
 export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount, gameTurn, setBCell) => {
@@ -30,39 +30,15 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
   // const [adjacentCells, setAdjacentCells] = useState([]);
   // const [tmpAdjacentCells, setTmpAdjacentCells] = useState([]);
 
-  // const putMark = ({ y, x }) => {
-  //   // console.log(y, x);
-  //   if (board.board[y][x] === '') {
-  //     const newBoard = _.cloneDeep(board);
-  //     newBoard.board[y][x] = currentPlayer;
-  //     newBoard.available = board.available - 1;
-  //     setBoard(newBoard);
-  //     setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
-  //     setGameTurn((prev) => prev + 1);
-  //     const currentMove = {
-  //       y: y,
-  //       x: x,
-  //       owner: currentPlayer,
-  //     }
-  //     const newAdjacentCells = generateAdjacentFromLastOccupiedCell(board.board, adjacentCells, { y, x });
-  //     setAdjacentCells(newAdjacentCells);
-  //     setMoveRecord((prev) => [...prev, currentMove]);
-  //     checkScore({ board: board.board, currentPlayer, curY: y, curX: x });
-  //     if (checkWin({ board: board.board, currentPlayer, curY: y, curX: x })) setGameStatus(currentPlayer);
-  //     else if (newBoard.available === 0) setGameStatus('tie');
-  //   }
-  // };
-
   const minimax = (board, adj_cells, curr_player, curr_capture, depth, isMaximize, last_move, alpha, beta) => {
-    // let score = 0;
     let curr_adj = _.cloneDeep(adj_cells);
     let best_move = { y: 0, x: 0 }
     let boardCopy = _.cloneDeep(board);
     let take_best = (gameTurn + depth < 3) && (aiPlayer === 'X') ? 4 : TAKE_BEST_N;
-    if (depth === 5) {
+    if (depth === 5 || checkWin(boardCopy, curr_player, curr_capture, last_move)) {
       // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
       // printBoard(boardCopy.board, curr_adj, []);
-      const node = evaluateBoard(boardCopy.board, aiPlayer);
+      const node = evaluateBoard(boardCopy.board, aiPlayer, take_best);
       // console.log('last node', node);
       return node[0].score;
     }
@@ -144,7 +120,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     const adj_cells_copy = _.cloneDeep(adjacentCells);
     const curr_capture = _.cloneDeep(captureCount);
     const best_move = minimax(boardCopy, adj_cells_copy, aiPlayer, curr_capture, 0, true, null, MIN, MAX);
-    // console.log('best_move', best_move);
+    console.log('best_move', best_move);
     return best_move;
   }
 
@@ -158,7 +134,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     else {
       // const tmpAdjacentCells = _.cloneDeep(adjacentCells);
       // setTmpAdjacentCells(_.cloneDeep(adjacentCells));
-      return AiMove();
+      AiMove();
     }
   }
 

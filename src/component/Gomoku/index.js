@@ -93,6 +93,7 @@ const Gomoku = () => {
     newBoard.available = board.available + 1;
     setBoard(newBoard);
     setCurrentPlayer(lastMove.owner);
+    setGameStatus(null);
     setGameTurn((prev) => prev - 1);
     newRecord.pop();
     setMoveRecord(newRecord);
@@ -127,10 +128,9 @@ const Gomoku = () => {
     setGameStatus(null);
   };
 
-  
-
   const putMark = ({ y, x }) => {
     // console.log(y, x);
+    let gameResult = null;
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
       let newAdjacentCells = _.cloneDeep(adjacentCells);
@@ -173,9 +173,11 @@ const Gomoku = () => {
       setAdjacentCells(newAdjacentCells);
       setMoveRecord((prev) => [...prev, currentMove]);
       // checkScore({ board: newBoard.board, currentPlayer, curY: y, curX: x });
-      if (checkWin({ board: newBoard.board, currentPlayer, curY: y, curX: x }))
-        setGameStatus(currentPlayer);
-      else if (newBoard.available === 0) setGameStatus('tie');
+      // if (checkWin(newBoard, currentPlayer, result.captured, y, x))
+      //   setGameStatus(currentPlayer);
+      // else if (newBoard.available === 0) setGameStatus('tie');
+      gameResult = checkWin(newBoard, currentPlayer, result.captured, y, x);
+      if (gameResult) setGameStatus(gameResult);
     }
   };
 
@@ -242,7 +244,7 @@ const Gomoku = () => {
             </GameStatus>
             <GameStatus>
               <div>AI time usage</div>
-              <div>{timer / 1000} sec</div>
+              <div>{(timer / 1000).toFixed(3)} sec</div>
             </GameStatus>
             <GameStatus>
               <div>Game turn</div>

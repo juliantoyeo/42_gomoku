@@ -2,6 +2,7 @@ import _ from 'lodash';
 import {
   CONNECT_N,
   SCORE,
+  PRIORITY,
   TAKE_BEST_N,
   patterns,
   patterns_index,
@@ -69,9 +70,9 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
       start_x = start_x + offset;
     }
 
-    if (key === 'capture') {
-      score = curr_capture[enemy] * 2 + score;
-    }
+    // if (key === 'capture') {
+    //   score = curr_capture[enemy] * 2 + score;
+    // }
     if (owner !== curr_player) {
       score = score * -1;
     }
@@ -81,6 +82,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
       pattern: pattern,
       owner: owner,
       category: key,
+      priority: PRIORITY[key],
       dir: dir,
       score: score
     });
@@ -91,6 +93,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, curr_c
 
 const evaluate = (blocks, curr_player, curr_capture) => {
   const n_array = [];
+  let best_node = null;
   // console.log('evaluate blocks', blocks);
 
   for (let item of blocks) {
@@ -106,10 +109,18 @@ const evaluate = (blocks, curr_player, curr_capture) => {
         }
       }
       if (new_node) {
-        n_array.push(new_node);
+        if (best_node === null || best_node.priority > new_node.priority)
+          best_node = new_node;
       }
+      // if (new_node) {
+      //   n_array.push(new_node);
+      // }
     }
   }
+  if (best_node) {
+    n_array.push(best_node);
+  }
+  // console.log('best_node', best_node);
   // console.log('n_array', n_array);
   return n_array;
 }
@@ -178,8 +189,8 @@ const getBlock = (curr_board, cells_to_eval, dir) => {
 
 
 export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_capture, take_best) => {
-  let b_node = [];
-  let t_node = [];
+  // let b_node = [];
+  // let t_node = [];
   const horizontalBlock = getBlock(curr_board.board, cells_to_eval, 'h');
   const verticalBlock = getBlock(curr_board.board, cells_to_eval, 'v');
   const diagonalBlock_1 = getBlock(curr_board.board, cells_to_eval, 'd_1');
@@ -196,31 +207,38 @@ export const evaluteCells = (curr_board, curr_player, cells_to_eval, curr_captur
   // console.log('v_node', v_node);
   // console.log('d_node_1', d_node_1);
   // console.log('d_node_2', d_node_2);
-  b_node = _.take(
-    _.orderBy(
-      _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner === curr_player),
-      // _.filter([...h_node], (node) => node.owner === curr_player),
-      ['score'],
-      ['desc']
-    ), take_best
-  );
-  t_node = _.take(
-    _.orderBy(
-      _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner !== curr_player),
-      // _.filter([...h_node], (node) => node.owner === curr_player),
-      ['score'],
-      ['asc']
-    ), take_best
-  );
+  // b_node = _.take(
+  //   _.orderBy(
+  //     _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner === curr_player),
+  //     _.filter([...h_node], (node) => node.owner === curr_player),
+  //     ['score'],
+  //     ['desc']
+  //   ), take_best
+  // );
+  // t_node = _.take(
+  //   _.orderBy(
+  //     _.filter([...d_node_1, ...d_node_2, ...h_node, ...v_node], (node) => node.owner !== curr_player),
+  //     _.filter([...h_node], (node) => node.owner !== curr_player),
+  //     ['score'],
+  //     ['asc']
+  //   ), take_best
+  // );
   // console.log(`b_node`, b_node);
   // console.log(`t_node`, t_node);
 
+  // let combinedNode = _.take(
+  //   _.orderBy(
+  //     _.map([...b_node, ...t_node], (node) => {
+  //       node.priority = _.findIndex(patterns_index, (category) => category === node.category);
+  //       return node;
+  //     }),
+  //     ['priority'],
+  //     ['asc']
+  //   ), take_best
+  // );
   let combinedNode = _.take(
     _.orderBy(
-      _.map([...b_node, ...t_node], (node) => {
-        node.priority = _.findIndex(patterns_index, (category) => category === node.category);
-        return node;
-      }),
+      [...d_node_1, ...d_node_2, ...h_node, ...v_node],
       ['priority'],
       ['asc']
     ), take_best

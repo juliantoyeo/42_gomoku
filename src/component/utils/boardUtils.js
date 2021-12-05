@@ -54,6 +54,8 @@ export const createBoard = () => {
   // return demoBoard;
 }
 
+export const dir_array = ['h', 'v', 'd_1', 'd_2'];
+
 export const patterns_index = [
   'win',
   'double_open4',
@@ -148,12 +150,26 @@ export const SCORE = {
   'double_open4': 90,
   'open4': 80,
   'double_open3': 70,
-  'capture': 60,
-  'broken3_1': 55,
+  'broken3_1': 60,
+  'capture': 55,
   'broken3_2': 50,
   'covered3': 40,
   'open2': 30,
   'convered2': 20,
+  'close1': 10
+}
+
+export const PRIORITY = {
+  'win': 0,
+  'double_open4': 1,
+  'open4': 2,
+  'double_open3': 3,
+  'broken3_1': 4,
+  'capture': 5,
+  'broken3_2': 6,
+  'covered3': 7,
+  'open2': 8,
+  'convered2': 9,
   'close1': 10
 }
 

@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { patterns, doubleThreePattern } from './boardUtils';
+import { dir_array, patterns, doubleThreePattern } from './boardUtils';
 // import { getNextCoordinate } from './evaluateUtils';
 import { getCoordinate } from './getCoordinate';
 
@@ -112,7 +112,6 @@ const findPatternInAllDirection = (curr_board, curr_player, cell, skip_dir) => {
   let d_open_3_count = 0;
   let broken_3_count = 0;
   let total = 0;
-  const dir_array = ['h', 'v', 'd_1', 'd_2'];
 
   for (let dir of dir_array) {
     if (skip_dir !== dir) {

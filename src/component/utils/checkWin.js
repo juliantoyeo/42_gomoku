@@ -1,65 +1,93 @@
-import { CONNECT_N } from './boardUtils';
+import { CONNECT_N, dir_array } from './boardUtils';
+import { getCoordinate } from './getCoordinate';
 
-const checkHorizontal = ({ board, currentPlayer, curY, curX }) => {
-  let counter = 1;
-  let dir_1 = true;
-  let dir_2 = true;
+const checkPotentialCapture = (board, curr_player, cell, curr_dir) => {
+  const { y, x } = cell;
+  const enemy = curr_player === 'X' ? 'O' : 'X';
+  let isCapturable = false;
 
-  for (let i = 1; i < CONNECT_N + 1; i++) {
-    dir_1 && board[curY - i]?.[curX] === currentPlayer ? counter++ : dir_1 = false;
-    dir_2 && board[curY + i]?.[curX] === currentPlayer ? counter++ : dir_2 = false;
-    if (!dir_1 && !dir_2) break;
+  for (let dir of dir_array) {
+    if (curr_dir === dir) continue;
+    // console.log('checking dir', dir);
+    const next_1 = getCoordinate(y, x, 1, dir, true, false);
+    const next_2 = getCoordinate(y, x, 2, dir, true, false);
+    const prev_1 = getCoordinate(y, x, 1, dir, false, false);
+    const prev_2 = getCoordinate(y, x, 2, dir, false, false);
+
+    if (board[prev_1.y]?.[prev_1.x] === '' && board[next_1.y]?.[next_1.x] === curr_player && board[next_2.y]?.[next_2.x] === enemy) {
+      isCapturable = true;
+      break;
+    }
+    else if (board[prev_1.y]?.[prev_1.x] === curr_player && board[prev_2.y]?.[prev_2.x] === '' && board[next_1.y]?.[next_1.x] === enemy) {
+      isCapturable = true;
+      break;
+    }
+    else if (board[prev_1.y]?.[prev_1.x] === enemy && board[next_1.y]?.[next_1.x] === curr_player && board[next_2.y]?.[next_2.x] === '') {
+      isCapturable = true;
+      break;
+    }
+    else if (board[prev_1.y]?.[prev_1.x] === curr_player && board[prev_2.y]?.[prev_2.x] === enemy && board[next_1.y]?.[next_1.x] === '') {
+      isCapturable = true;
+      break;
+    }
   }
-  return counter;
+  return isCapturable;
 }
 
-const checkVertical = ({ board, currentPlayer, curY, curX }) => {
+const checkWinningRow = (board, curr_player, curr_capture, dir, y, x) => {
+  let win = false;
   let counter = 1;
-  let dir_1 = true;
-  let dir_2 = true;
+  let next = { y, x };
+  let connected_cells = [{ y, x }];
 
   for (let i = 1; i < CONNECT_N + 1; i++) {
-    dir_1 && board[curY][curX - i] === currentPlayer ? counter++ : dir_1 = false;
-    dir_2 && board[curY][curX + i] === currentPlayer ? counter++ : dir_2 = false;
-    if (!dir_1 && !dir_2) break;
+    next = getCoordinate(y, x, i, dir, true, false);
+    if (board[next.y]?.[next.x] === curr_player) {
+      connected_cells.push(next);
+      counter++;
+    }
+    else
+      break;
   }
-  return counter;
-}
-
-const checkDiagonal_1 = ({ board, currentPlayer, curY, curX }) => {
-  let counter = 1;
-  let dir_1 = true;
-  let dir_2 = true;
-
   for (let i = 1; i < CONNECT_N + 1; i++) {
-    dir_1 && board[curY - i]?.[curX - i] === currentPlayer ? counter++ : dir_1 = false;
-    dir_2 && board[curY + i]?.[curX + i] === currentPlayer ? counter++ : dir_2 = false;
-    if (!dir_1 && !dir_2) break;
+    next = getCoordinate(y, x, i, dir, false, false);
+    if (board[next.y]?.[next.x] === curr_player) {
+      connected_cells.push(next);
+      counter++;
+    }
+    else
+      break;
   }
-  return counter;
+  if (counter === CONNECT_N) {
+    win = true;
+    // console.log('curr_capture[curr_player]', curr_capture[curr_player]);
+    if (curr_capture[curr_player] === 8) {
+      // console.log('win on dir', dir);
+      for (let cell of connected_cells) {
+        if (checkPotentialCapture(board, curr_player, cell, dir)) {
+          win = false;
+          // console.log('cell', cell, 'is captureable, thus win is ', win);
+          break;
+        }
+      }
+    }
+  }
+  return win;
 }
 
-const checkDiagonal_2 = ({ board, currentPlayer, curY, curX }) => {
-  let counter = 1;
-  let dir_1 = true;
-  let dir_2 = true;
-
-  for (let i = 1; i < CONNECT_N + 1; i++) {
-    dir_1 && board[curY - i]?.[curX + i] === currentPlayer ? counter++ : dir_1 = false;
-    dir_2 && board[curY + i]?.[curX - i] === currentPlayer ? counter++ : dir_2 = false;
-    if (!dir_1 && !dir_2) break;
+export const checkWin = (curr_board, curr_player, curr_capture, y, x) => {
+  if (curr_board.available === 0)
+    return ('tie');
+  else if (curr_capture['O'] === 10)
+    return ('X');
+  else if (curr_capture['X'] === 10)
+    return ('O');
+  else {
+    for (let dir of dir_array) {
+      if (checkWinningRow(curr_board.board, curr_player, curr_capture, dir, y, x)) {
+        return curr_player;
+      }
+    }
   }
-  return counter;
-}
-
-export const checkWin = ({ board, currentPlayer, curY, curX }) => {
-  if (checkHorizontal({ board, currentPlayer, curY, curX }) === CONNECT_N)
-    return true;
-  if (checkVertical({ board, currentPlayer, curY, curX }) === CONNECT_N)
-    return true;
-  if (checkDiagonal_1({ board, currentPlayer, curY, curX }) === CONNECT_N)
-    return true;
-  if (checkDiagonal_2({ board, currentPlayer, curY, curX }) === CONNECT_N)
-    return true;
-  return false;
+  return null;
 }

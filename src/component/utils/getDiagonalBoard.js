@@ -1,4 +1,4 @@
-import { BOARD_SIZE, DIAGONAL_ROW_SIZE } from '../boardUtils';
+import { BOARD_SIZE, DIAGONAL_ROW_SIZE } from './boardUtils';
 
 export const getDiagonalBoard = (curr_board) => {
   const d_1 = Array.from(Array(DIAGONAL_ROW_SIZE), () => []);
