@@ -66,7 +66,7 @@ export default function Board(props) {
 
 
   useEffect(() => {
-    // console.log(`The human player is -->> ${props.humanPlayer}`);
+    console.log(`The human player is -->> ${props.humanPlayer}`);
     setCurrentPlayer(humanPlayer);
     const c = props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
     const humanColor =
@@ -82,13 +82,15 @@ export default function Board(props) {
   }, [props.humanPlayer]);
 
   useEffect(() => {
-    console.log(`bitch := ${props.board}`);
     (() => {
       if (props.board) {
         const { board } = props.board;
-        console.log(`dog := ${board}`)
-        const xColor = props.humanPlayer === 'X' ? 'whiteStone' : 'blackStone';
-        const oColor = props.humanPlayer === 'O' ? 'whiteStone' : 'blackStone';
+        /**
+         * Possible to pass the string color direct to placeStone() instead of using variable.
+         * Probably will be using variable to handle player different colors
+         */
+        const xColor = 'blackStone';
+        const oColor = 'whiteStone';
         for (let row = 0; row < BOARD_SIZE; row++) {
           for (let col = 0; col < BOARD_SIZE; col++) {
             if (board[row][col] === 'O' && boardCopy[row][col] === '') {
