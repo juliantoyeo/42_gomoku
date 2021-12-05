@@ -3,12 +3,16 @@
 * Generate color palettes
 */
 
+$wood-base-color: #f1b06c;
+$main-dark-green: #25636d;
+
 .arrow-pointer {
   width: 250px;
   height: 50px;
-  background: #25636d;
+  background: $main-dark-green;
   position: relative;
-
+  font-family: 'Chakra Petch', sans-serif;
+  
   &:after {
     content: '';
     position: absolute;
@@ -16,7 +20,7 @@
     bottom: 0;
     width: 0;
     height: 0;
-    border-left: 25px solid #f1b06c;
+    border-left: 25px solid $wood-base-color;
     border-top: 25px solid transparent;
     border-bottom: 25px solid transparent;
   }
@@ -35,11 +39,46 @@
 
   &:hover {
     background: #357e70;
-    border-left: 25px solid #f1b06c;
-		color: #F1B06C;
+    border-left: 25px solid $wood-base-color;
+    color: $wood-base-color;
     cursor: pointer;
     &::before {
       border-left: 25px solid #357e70;
     }
   }
+}
+
+.half-ellipse {
+  background: $main-dark-green;
+  height: 396px;
+}
+
+.quarter-ellipse-left {
+  border-radius: 100% 0 0 0;
+  border-right: 1px solid $wood-base-color;
+  text-align: end;
+  margin-bottom: 1em;
+}
+
+.quarter-ellipse-right {
+  border-radius: 0 100% 0 0;
+  border-left: 1px solid $wood-base-color;
+}
+
+%playerName {
+  margin: 1.2em 1em .3em 1em;
+  font-size: 3em;
+  color: #fff;
+  span {
+    display: block;
+    font-size: .8em;
+  }
+}
+
+.player-name-x {
+  @extend %playerName;
+}
+
+.player-name-o {
+  @extend %playerName;
 }
