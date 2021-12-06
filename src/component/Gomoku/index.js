@@ -54,6 +54,7 @@ const TempGap = styled.div`
 `;
 
 const Gomoku = () => {
+  const [gameMode, setGameMode] = useState('solo');
   const [gameStatus, setGameStatus] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [gameTurn, setGameTurn] = useState(0);
@@ -102,25 +103,33 @@ const Gomoku = () => {
 
   const undo = () => {
     if (moveRecord.length === 0) return;
-    const newRecord = _.cloneDeep(moveRecord);
-    const lastMove = _.last(newRecord);
-    const newBoard = _.cloneDeep(board);
-
-    newBoard.board[lastMove.y][lastMove.x] = '';
-    newBoard.available = board.available + 1;
-    setBoard(newBoard);
-    setCurrentPlayer(lastMove.owner);
-    setGameStatus(null);
-    setGameTurn((prev) => prev - 1);
-    newRecord.pop();
-    setMoveRecord(newRecord);
+    let undoCount = gameMode === 'solo' ? 2 : 1;
+    let newRecord = _.cloneDeep(moveRecord);
+    let newBoard = _.cloneDeep(board);
+    let lastMove = null;
+    for (let i = 0; i < undoCount; i++) {
+      console.log('undo');
+      lastMove = _.last(newRecord);
+      newBoard.board[lastMove.y][lastMove.x] = '';
+      newBoard.available = board.available + 1;
+      for (let capturedCell of lastMove.capturedCell) {
+        const capturedPlayer = lastMove.owner === 'X' ? 'O' : 'X';
+        newBoard.board[capturedCell.y][capturedCell.x] = capturedPlayer;
+        newBoard.available--;
+      }
+      newRecord.pop();
+    }
     const newAdjacentCells = generateAdjacentFromAllOccupiedCell(
       newBoard.board,
       currentPlayer,
       newRecord
     );
-
     setAdjacentCells(newAdjacentCells);
+    setMoveRecord(newRecord);
+    setGameTurn((prev) => prev - undoCount);
+    setCurrentPlayer(lastMove.owner);
+    setGameStatus(null);
+    setBoard(newBoard);
   };
 
   const newGame = (selectedPlayer) => {
@@ -152,7 +161,6 @@ const Gomoku = () => {
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
       let newAdjacentCells = _.cloneDeep(adjacentCells);
-      // let isCaptureMove = false;
       const nextPlayer = currentPlayer === 'X' ? 'O' : 'X';
       setErrorMessage('');
       if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
@@ -168,7 +176,6 @@ const Gomoku = () => {
       newBoard.available = board.available - 1;
       const result = checkCapture(newBoard, currentPlayer, captureCount, { y, x });
       newBoard = result.board;
-      newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);
       setCaptureCount(result.captured);
       setCurrentPlayer(nextPlayer);
@@ -181,11 +188,17 @@ const Gomoku = () => {
       newAdjacentCells = generateAdjacentFromLastOccupiedCell(
         newBoard.board,
         nextPlayer,
-        newAdjacentCells,
+        [...newAdjacentCells, ...result.newAdjacentCells],
         { y, x }
       );
       setAdjacentCells(newAdjacentCells);
-      setMoveRecord((prev) => [...prev, currentMove]);
+      setMoveRecord((prev) => [
+        ...prev,
+        {
+          ...currentMove,
+          capturedCell: result.capturedCell
+        }
+      ]);
       // if (checkWin(newBoard, currentPlayer, result.captured, y, x))
       //   setGameStatus(currentPlayer);
       // else if (newBoard.available === 0) setGameStatus('tie');
