@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import _ from 'lodash';
+import _, { last } from 'lodash';
 
 import {
   BOARD_SIZE,
@@ -33,27 +33,39 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     let best_move = { y: 0, x: 0 }
     let boardCopy = _.cloneDeep(board);
     let curr_adj = _.cloneDeep(adj_cells);
+    let capture_copy = _.clone(curr_capture);
     let take_best = (gameTurn + depth < 3) && (aiPlayer === 'X') ? 4 : TAKE_BEST_N;
-    if (depth === 6 || checkWin(boardCopy, curr_player, curr_capture, last_move)) {
-      const node = evaluateBoard(boardCopy.board, aiPlayer, curr_adj, curr_capture, take_best);
+    if (depth === 6 || checkWin(boardCopy, curr_player, capture_copy, last_move)) {
+      const node = evaluateBoard(boardCopy.board, aiPlayer, curr_adj, capture_copy, take_best);
+      const last_node = node[0];
       // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
       // printBoard(boardCopy.board, curr_adj, []);
-      // console.log('last node', node);
-      return node[0].score;
+      // console.log('capture_copy', capture_copy);
+      // console.log('last_node', last_node);
+      if (last_node.category === 'capture' && last_node.owner === humanPlayer) {
+        last_node.score = 20;
+      }
+      last_node.score = last_node.score + capture_copy[aiPlayer] * -2;
+      // console.log('last_node.score', last_node.score);
+      return last_node.score;
     }
     if (last_move) {
       curr_adj = generateAdjacentFromLastOccupiedCell(boardCopy.board, curr_player, adj_cells, last_move);
     }
+    // console.log('===============');
     // console.log('curr_adj', curr_adj);
-    const node = evaluteCells(boardCopy.board, curr_player, curr_adj, curr_capture, take_best);
+    const node = evaluteCells(boardCopy.board, curr_player, curr_adj, capture_copy, take_best);
     const list = generatePotentialList(node);
     if (depth === 0) setBCell(list);
+    
     // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
     // console.log(`boardCopy.available`, boardCopy.available);
     // console.log(`curr_adj`, curr_adj);
     // console.log(`node`, node);
+    // console.log('capture_copy', capture_copy);
     // console.log(`list`, list);
     // console.log(boardCopy.board);
+    // if (depth === 1)
     // printBoard(boardCopy.board, curr_adj, list);
     if (isMaximize) {
       let best = MIN;
@@ -64,20 +76,28 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
         boardCopy.board[cell.y][cell.x] = curr_player;
         boardCopy.available = boardCopy.available - 1;
         if (cell.isCapturingCell) {
-          const result = checkCapture(boardCopy, curr_player, curr_capture, cell);
+          const result = checkCapture(boardCopy, curr_player, capture_copy, cell);
           boardCopy = result.board;
+          capture_copy = result.captured;
           curr_adj = [...curr_adj, ...result.newAdjacentCells];
         }
-        let val = minimax(boardCopy, curr_adj, humanPlayer, curr_capture, depth + 1, false, cell, alpha, beta);
-        best = Math.max(best, val);
-        if (best === val) best_move = cell;
+        let val = minimax(boardCopy, curr_adj, humanPlayer, capture_copy, depth + 1, false, cell, alpha, beta);
+        // best = Math.max(best, val);
+        // if (best === val) best_move = cell;
+        if (val > best) {
+          best = val;
+          best_move = cell;
+        }
+        
         boardCopy = prevBoard;
         curr_adj = [...prevAdj];
         alpha = Math.max(alpha, best);
 
         // Alpha Beta Pruning
-        if (beta <= alpha)
+        if (beta <= alpha) {
           break;
+        }
+
         // console.log('best max', best, 'depth ', depth);
       }
       if (depth === 0) return best_move;
@@ -93,20 +113,27 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
         boardCopy.board[cell.y][cell.x] = curr_player;
         boardCopy.available = boardCopy.available - 1;
         if (cell.isCapturingCell) {
-          const result = checkCapture(boardCopy, curr_player, curr_capture, cell);
+          const result = checkCapture(boardCopy, curr_player, capture_copy, cell);
           boardCopy = result.board;
+          capture_copy = result.captured;
           curr_adj = [...curr_adj, ...result.newAdjacentCells];
         }
-        let val = minimax(boardCopy, curr_adj, aiPlayer, curr_capture, depth + 1, true, cell, alpha, beta);
-        best = Math.min(best, val);
-        if (best === val) best_move = cell;
+        let val = minimax(boardCopy, curr_adj, aiPlayer, capture_copy, depth + 1, true, cell, alpha, beta);
+        // best = Math.min(best, val);
+        // if (best === val) best_move = cell;
+        if (val < best) {
+          best = val;
+          best_move = cell;
+        }
         boardCopy = prevBoard;
         curr_adj = [...prevAdj];
         beta = Math.min(beta, best);
 
         // Alpha Beta Pruning
-        if (beta <= alpha)
+        if (beta <= alpha) {
           break;
+        }
+          
         // console.log('best min', best, 'depth ', depth);
       }
       if (depth === 0) return best_move;

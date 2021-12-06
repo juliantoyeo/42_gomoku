@@ -166,10 +166,7 @@ const Gomoku = () => {
       }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;
-      const result = checkCapture(newBoard, currentPlayer, captureCount, {
-        y,
-        x,
-      });
+      const result = checkCapture(newBoard, currentPlayer, captureCount, { y, x });
       newBoard = result.board;
       newAdjacentCells = [...newAdjacentCells, ...result.newAdjacentCells];
       setBoard(newBoard);

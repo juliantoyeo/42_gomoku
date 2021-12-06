@@ -19,7 +19,7 @@ export const CONNECT_N = 5;
 
 // AI setting
 export const TAKE_BEST_N = 1;
-export const DEPTH = 10;
+export const DEPTH = 6;
 export const MAX = 1000;
 export const MIN = -1000;
 
