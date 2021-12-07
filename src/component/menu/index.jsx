@@ -116,12 +116,20 @@ export default function Menu(props) {
   const newGameCallBack = (playAs) => {
     setIsGameOver(false);
     setWinner('');
+    Array.from(document.querySelectorAll('.highlightAdjacentStone')).forEach(
+      (el) => el.parentNode.removeChild(el)
+    );
     props.newGameCb(playAs);
   };
 
   const handleToggleAdjacentCb = () => {
-    props.toggleAdjacentCells();
+    props.toggleAdjacentCellsCb();
   };
+
+  const handleToggleShowBestMoveCb = () => {
+    props.toggleShowBestMoveCb();
+  };
+
   return (
     <>
       <Container>
@@ -206,7 +214,17 @@ export default function Menu(props) {
             <Button className="arrow-pointer">Placeholder</Button>
           </FlexItem>
           <FlexItem>
-            <Button className="arrow-pointer">Highlight Best Move</Button>
+            <Button
+              className="arrow-pointer"
+              onClick={handleToggleShowBestMoveCb}
+              style={
+                props.toggleShowBestMove
+                  ? { background: '#357e70', color: '#f1b06c' }
+                  : {}
+              }
+            >
+              Highlight Best Move
+            </Button>
           </FlexItem>
           <FlexItem>
             <Button
