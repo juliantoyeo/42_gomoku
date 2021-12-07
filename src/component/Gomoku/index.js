@@ -62,6 +62,7 @@ const Gomoku = () => {
   const [captureCount, setCaptureCount] = useState({ X: 0, O: 0 });
   const [showHighlight, setShowHighlight] = useState(false);
   const [showAdjacent, setShowAdjacent] = useState(true);
+  const [toggleShowAdjacentCells, setToggleShowAdjacentCells] = useState(false);
   const [currentPlayer, setCurrentPlayer] = useState('X');
   const [humanPlayer, setHumanPlayer] = useState('O');
   const [aiPlayer, setAiPlayer] = useState('X');
@@ -239,6 +240,14 @@ const Gomoku = () => {
     putMark({ y, x });
   };
 
+  const menuNewGameCallback = (playAs) => {
+    newGame(playAs);
+  };
+
+  const handleToggleShowAdjacentCells = () => {
+    setToggleShowAdjacentCells(!toggleShowAdjacentCells);
+  };
+
   return (
     <>
       <MainContainer>
@@ -321,8 +330,23 @@ const Gomoku = () => {
         <>
           <TempGap>&nbsp;</TempGap>
           <FlexBox>
-            <Board humanPlayer={humanPlayer} board={board} cb={boardCallback} />
-            <Menu />
+            <Board
+              humanPlayer={humanPlayer}
+              board={board}
+              cb={boardCallback}
+              adjacentCells={adjacentCells}
+              toggleShowAdjacentCells={toggleShowAdjacentCells}
+            />
+            <Menu
+              humanPlayer={humanPlayer}
+              timer={timer}
+              gameTurn={gameTurn}
+              captureCount={captureCount}
+              gameStatus={gameStatus}
+              newGameCb={menuNewGameCallback}
+              toggleAdjacentCells={handleToggleShowAdjacentCells}
+              toggleShowAdjacentCells={toggleShowAdjacentCells}
+            />
           </FlexBox>
         </>
       )}
