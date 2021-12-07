@@ -50,8 +50,14 @@ export default function Board(props) {
     )
   );
 
-  const { humanPlayer, board, cb, adjacentCells, toggleShowAdjacentCells } =
-    props;
+  const {
+    humanPlayer,
+    humanBestMove,
+    cb,
+    adjacentCells,
+    toggleShowAdjacentCells,
+    toggleShowBestMove,
+  } = props;
 
   const outter = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
@@ -95,6 +101,33 @@ export default function Board(props) {
       }
     })();
   }, [adjacentCells, toggleShowAdjacentCells]);
+
+  useEffect(() => {
+    if (toggleShowBestMove) {
+      /**
+       * Remove old one before placing the newest one
+       */
+      Array.from(
+        document.querySelectorAll(
+          '.higlightHumanBestMove, .higlightHumanBestMoveCapture'
+        )
+      ).forEach((el) => el.parentNode.removeChild(el));
+
+      const stoneColor = humanBestMove?.isCapturingCell
+        ? 'higlightHumanBestMoveCapture'
+        : 'higlightHumanBestMove';
+      placeShallowStone(humanBestMove.x + 2, humanBestMove.y + 2, stoneColor);
+    } else {
+      if (humanBestMove) {
+        // remove from the DOM
+        Array.from(
+          document.querySelectorAll(
+            '.higlightHumanBestMove, higlightHumanBestMoveCapture'
+          )
+        ).forEach((el) => el.parentNode.removeChild(el));
+      }
+    }
+  }, [humanBestMove, toggleShowBestMove]);
 
   useEffect(() => {
     setCurrentPlayer(humanPlayer);
