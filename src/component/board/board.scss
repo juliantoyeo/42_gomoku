@@ -5,6 +5,14 @@
   z-index: 2;
 }
 
+.stoneShallow {
+  border-radius: 50%;
+  box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.25),
+    -2px -2px 4px 0 rgba(255, 255, 255, 0.25);
+
+    // z-index: 4;
+}
+
 .black {
   background: linear-gradient(145deg, #f6cfa6, #000000);
 }
@@ -35,6 +43,14 @@
 }
 .whiteStone {
   background: linear-gradient(145deg, #f6cfa6, #ffffff);
+}
+
+.highlightAdjacentStone {
+  background: linear-gradient(145deg, #f6cfa6, #F476C0);
+  font-size: 12px;
+  text-align: center;
+  padding-top: 1em;
+  color: gray;
 }
 
 .blackStoneHover {
