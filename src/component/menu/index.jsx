@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import boardBackground from '../../assets/images/wood-pattern.png';
 import './menu.scss';
@@ -83,7 +84,44 @@ const WinnerImgWrapper = styled.div`
   margin: auto;
 `;
 
-export default function Menu() {
+export default function Menu(props) {
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [winner, setWinner] = useState('');
+  const [AITimeUsage, setAITimeUsage] = useState(0);
+
+  useEffect(() => {
+    (() => {
+      const seconds = (props.timer / 1000).toFixed(3);
+      setAITimeUsage(seconds);
+    })();
+  }, [props.timer]);
+
+  useEffect(() => {
+    (() => {
+      if (props.gameStatus) {
+        if (props.gameStatus !== 'tie') {
+          if (props.gameStatus === 'X' && props.humanPlayer === 'X') {
+            setWinner('human');
+          } else if (props.gameStatus === 'O' && props.humanPlayer === 'O') {
+            setWinner('human');
+          } else {
+            setWinner('AI');
+          }
+          setIsGameOver(true);
+        }
+      }
+    })();
+  }, [props.gameStatus]);
+
+  const newGameCallBack = (playAs) => {
+    setIsGameOver(false);
+    setWinner('');
+    props.newGameCb(playAs);
+  };
+
+  const handleToggleAdjacentCb = () => {
+    props.toggleAdjacentCells();
+  };
   return (
     <>
       <Container>
@@ -102,22 +140,38 @@ export default function Menu() {
               {/* <hr /> */}
               <IconWrapper>
                 <img src={scoresvg} alt="score" title="AI capture score" />
-                <span>8</span>
+                <span>
+                  {props.humanPlayer === 'O'
+                    ? props.captureCount.O
+                    : props.captureCount.X}
+                </span>
               </IconWrapper>
               <IconWrapper>
                 <img src={timersvg} alt="time" title="AI time usage" />
-                {/* Replace 0 > 1 by aiTimeUsage > 5 seconds */}
-                <span style={{ color: 0 > 1 ? '#ff0000' : '#fff' }}>0420</span>
+                <span
+                  style={{
+                    color: AITimeUsage > 0.5 ? '#ff0000' : '#fff',
+                  }}
+                >
+                  {AITimeUsage}
+                </span>
               </IconWrapper>
-              <WinnerImgWrapper>
-                <img src={trophypng} width={52} height={52} />
-              </WinnerImgWrapper>
+              {isGameOver &&
+                (winner === 'AI' ? (
+                  <WinnerImgWrapper>
+                    <img src={trophypng} width={52} height={52} />
+                  </WinnerImgWrapper>
+                ) : (
+                  <WinnerImgWrapper>
+                    <img src={loserpng} width={52} height={52} />
+                  </WinnerImgWrapper>
+                ))}
             </ItemHeader>
             <ItemHeader className="half-ellipse quarter-ellipse-right">
               <div className="player-name-o">
                 <img
                   src={playerHumansvg}
-                  alt="player-human"
+                  alt="human-player"
                   width={62}
                   height={64}
                   title="Human player"
@@ -126,15 +180,26 @@ export default function Menu() {
               {/* <hr /> */}
               <IconWrapper>
                 <img src={scoresvg} alt="score" title="Human capture score" />
-                <span>8</span>
+                <span>
+                  {props.humanPlayer === 'O'
+                    ? props.captureCount.X
+                    : props.captureCount.O}
+                </span>
               </IconWrapper>
               <IconWrapper>
                 <img src={gameTurnsvg} alt="game-turn" title="Game turns" />
-                <span>21</span>
+                <span>{props.gameTurn}</span>
               </IconWrapper>
-              <WinnerImgWrapper>
-                <img src={loserpng} width={52} height={52} />
-              </WinnerImgWrapper>
+              {isGameOver &&
+                (winner === 'human' ? (
+                  <WinnerImgWrapper>
+                    <img src={trophypng} width={52} height={52} />
+                  </WinnerImgWrapper>
+                ) : (
+                  <WinnerImgWrapper>
+                    <img src={loserpng} width={52} height={52} />
+                  </WinnerImgWrapper>
+                ))}
             </ItemHeader>
           </FlexBox>
           <FlexItem>
@@ -144,18 +209,32 @@ export default function Menu() {
             <Button className="arrow-pointer">Highlight Best Move</Button>
           </FlexItem>
           <FlexItem>
-            <Button className="arrow-pointer">
+            <Button
+              className="arrow-pointer"
+              onClick={handleToggleAdjacentCb}
+              style={
+                props.toggleShowAdjacentCells
+                  ? { background: '#357e70', color: '#f1b06c' }
+                  : {}
+              }
+            >
               Highlight Adjacent Cells{' '}
               {/* <PlayerSpan style={{ fontSize: '1.2em' }}>&#9860;</PlayerSpan> */}
             </Button>
           </FlexItem>
           <FlexItem>
-            <Button className="arrow-pointer">
+            <Button
+              className="arrow-pointer"
+              onClick={() => newGameCallBack('X')}
+            >
               New Game PLAY as <PlayerSpan>X</PlayerSpan>
             </Button>
           </FlexItem>
           <FlexItem>
-            <Button className="arrow-pointer">
+            <Button
+              className="arrow-pointer"
+              onClick={() => newGameCallBack('O')}
+            >
               New Game PLAY as <PlayerSpan>O</PlayerSpan>
             </Button>
           </FlexItem>
