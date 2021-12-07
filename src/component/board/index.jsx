@@ -43,18 +43,15 @@ export default function Board(props) {
   const [hoverClassName, setHoverClassName] = useState('');
   const [humanStoneColor, setHumanStoneColor] = useState('');
   const [aiStoneColor, setAiStoneColor] = useState('');
+  const [adjacentCellsCopy, setAdjacentCellsCopy] = useState();
   const [boardCopy, setBoardCopy] = useState(
     Array.from({ length: BOARD_SIZE }, () =>
       Array.from({ length: BOARD_SIZE }, () => '')
     )
   );
 
-  const { humanPlayer, board, cb } = props;
-
-  useEffect(() => {
-    console.log('ComponentDidMount()');
-    console.log(`${humanPlayer} -- ${board.board}`);
-  }, [])
+  const { humanPlayer, board, cb, adjacentCells, toggleShowAdjacentCells } =
+    props;
 
   const outter = [
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
@@ -64,9 +61,42 @@ export default function Board(props) {
     2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38,
   ];
 
+  useEffect(() => {
+    (() => {
+      if (toggleShowAdjacentCells) {
+        if (!adjacentCellsCopy) {
+          /**
+           * The adjacentCellsCopy is undefined by default
+           * once we define it, it will be one version behind the actual
+           * adjacentCells, so we use it to find the removed (captured) stones
+           * from the board.
+           */
+          setAdjacentCellsCopy(JSON.parse(JSON.stringify(adjacentCells)));
+        } else {
+          for (let i = 0; i < adjacentCellsCopy.length; i++) {
+            const cell = adjacentCellsCopy[i];
+            const includes = adjacentCells.find((a) => a.id === cell.id);
+            if (!includes) {
+              const el = document.querySelector(`adjacent-${cell.x}${cell.y}`);
+              if (el) {
+                el.parentNode.removeChild(el);
+              }
+            }
+          }
+          setAdjacentCellsCopy(JSON.parse(JSON.stringify(adjacentCells)));
+        }
+        adjacentCells.forEach((cell) => {
+          placeShallowStone(cell.x + 2, cell.y + 2, 'highlightAdjacentStone');
+        });
+      } else {
+        Array.from(
+          document.querySelectorAll('.highlightAdjacentStone')
+        ).forEach((el) => el.parentNode.removeChild(el));
+      }
+    })();
+  }, [adjacentCells, toggleShowAdjacentCells]);
 
   useEffect(() => {
-    console.log(`The human player is -->> ${props.humanPlayer}`);
     setCurrentPlayer(humanPlayer);
     const c = props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
     const humanColor =
@@ -132,12 +162,23 @@ export default function Board(props) {
     }
   }
 
-  function handleClick(indexOutter, indexInner) {
-    // console.log(
-    //   `indexOutter := ${indexOutter} indexInner := ${indexInner} hoverClassName`
-    // );
+  function placeShallowStone(column, row, mark) {
+    const board = document.querySelector('#board');
+    if (board) {
+      const stone = document.createElement('div');
+      stone.style.gridColumnStart = (column - 1) * 2;
+      stone.style.gridColumnEnd = (column - 1) * 2 + 2;
+      stone.style.gridRowStart = (row - 1) * 2;
+      stone.style.gridRowEnd = (row - 1) * 2 + 2;
+      stone.classList.add('stoneShallow');
+      stone.classList.add(mark);
+      stone.setAttribute('id', `adjacent-${row}${column}`);
+      stone.innerHTML = `${row}${column}`;
+      board.appendChild(stone);
+    }
+  }
 
-    // placeStone(indexInner + 2, indexOutter + 2, stoneColor);
+  function handleClick(indexOutter, indexInner) {
     cb(indexOutter, indexInner);
   }
 
