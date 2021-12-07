@@ -64,9 +64,9 @@
   color: #fff;
 }
 
-.higlightHumanBestMoveCapture {
+.captureCellHighlight {
   @extend %highlightStoneBase;
-  background: linear-gradient(145deg, #f6cfa6, #EE006F);
+  background: linear-gradient(145deg, #f6cfa6, green);
   z-index: 1;
   color: #fff;
 }

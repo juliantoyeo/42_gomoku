@@ -63,14 +63,13 @@ const Gomoku = () => {
   const [showHighlight, setShowHighlight] = useState(false);
   const [showAdjacent, setShowAdjacent] = useState(true);
   const [toggleShowAdjacentCells, setToggleShowAdjacentCells] = useState(false);
-  const [toggleShowBestMove, setToggleShowBestMove] = useState(false);
+  const [toggleCapture, setToggleCapture] = useState(false);
   const [humanBestMove, setHumanBestMove] = useState();
   const [currentPlayer, setCurrentPlayer] = useState('X');
   const [humanPlayer, setHumanPlayer] = useState('O');
   const [aiPlayer, setAiPlayer] = useState('X');
   const [bCell, setBCell] = useState([]);
   const [tCell, setTCell] = useState([]);
-  // const [occupiedCell, setOccupiedCell] = useState([]);
   const [moveRecord, setMoveRecord] = useState([]); // For all occupied cell
   const [adjacentCells, setAdjacentCells] = useState([]);
   const [board, setBoard] = useState({
@@ -101,10 +100,6 @@ const Gomoku = () => {
       }
     }
   }, [aiPlayer, currentPlayer]);
-
-  // console.log('bCell', bCell);
-  // console.log('tCell', tCell);
-  // console.log('adjacentCells', adjacentCells);
 
   const undo = () => {
     if (moveRecord.length === 0) return;
@@ -160,7 +155,6 @@ const Gomoku = () => {
   };
 
   const putMark = ({ y, x }) => {
-    // console.log(y, x);
     if (gameStatus) return;
     let gameResult = null;
     if (board.board[y][x] === '') {
@@ -255,8 +249,8 @@ const Gomoku = () => {
     setToggleShowAdjacentCells(!toggleShowAdjacentCells);
   };
 
-  const handleToggleShowBestMoveCb = () => {
-    setToggleShowBestMove(!toggleShowBestMove);
+  const handleToggleCaptureCb = () => {
+    setToggleCapture(!toggleCapture);
   };
 
   return (
@@ -342,13 +336,12 @@ const Gomoku = () => {
           <TempGap>&nbsp;</TempGap>
           <FlexBox>
             <Board
-              humanPlayer={humanPlayer}
+              currentPlayer={currentPlayer}
               board={board}
               cb={boardCallback}
               adjacentCells={adjacentCells}
               toggleShowAdjacentCells={toggleShowAdjacentCells}
-              toggleShowBestMove={toggleShowBestMove}
-              humanBestMove={humanBestMove}
+              toggleCapture={toggleCapture}
             />
             <Menu
               humanPlayer={humanPlayer}
@@ -359,8 +352,8 @@ const Gomoku = () => {
               newGameCb={menuNewGameCallback}
               toggleAdjacentCellsCb={handleToggleShowAdjacentCellsCb}
               toggleShowAdjacentCells={toggleShowAdjacentCells}
-              toggleShowBestMoveCb={handleToggleShowBestMoveCb}
-              toggleShowBestMove={toggleShowBestMove}
+              toggleCaptureCb={handleToggleCaptureCb}
+              toggleCapture={toggleCapture}
             />
           </FlexBox>
         </>

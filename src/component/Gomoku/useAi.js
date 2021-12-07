@@ -158,7 +158,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       return ({ y, x });
     }
     else {
-      return AiMove();
+       AiMove();
     }
   }
 

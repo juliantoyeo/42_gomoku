@@ -39,7 +39,7 @@ const Mark = styled.div`
 `;
 
 export default function Board(props) {
-  const [currentPlayer, setCurrentPlayer] = useState('O');
+  // const [currentPlayer, setCurrentPlayer] = useState('O');
   const [hoverClassName, setHoverClassName] = useState('');
   const [humanStoneColor, setHumanStoneColor] = useState('');
   const [aiStoneColor, setAiStoneColor] = useState('');
@@ -51,12 +51,13 @@ export default function Board(props) {
   );
 
   const {
-    humanPlayer,
+    currentPlayer,
     humanBestMove,
     cb,
     adjacentCells,
     toggleShowAdjacentCells,
-    toggleShowBestMove,
+    // toggleShowBestMove,
+    toggleCapture,
   } = props;
 
   const outter = [
@@ -69,7 +70,7 @@ export default function Board(props) {
 
   useEffect(() => {
     (() => {
-      if (toggleShowAdjacentCells) {
+      if (toggleShowAdjacentCells || toggleCapture) {
         if (!adjacentCellsCopy) {
           /**
            * The adjacentCellsCopy is undefined by default
@@ -92,57 +93,37 @@ export default function Board(props) {
           setAdjacentCellsCopy(JSON.parse(JSON.stringify(adjacentCells)));
         }
         adjacentCells.forEach((cell) => {
-          placeShallowStone(cell.x + 2, cell.y + 2, 'highlightAdjacentStone');
+          if (cell.isCapture && toggleCapture) {
+            /*
+             * Remove old one before placing the newest one
+             */
+            Array.from(
+              document.querySelectorAll('.captureCellHighlight')
+            ).forEach((el) => el.parentNode.removeChild(el));
+            placeShallowStone(cell.x + 2, cell.y + 2, 'captureCellHighlight');
+          } else if (toggleShowAdjacentCells) {
+            placeShallowStone(cell.x + 2, cell.y + 2, 'highlightAdjacentStone');
+          }
         });
-      } else {
+      }
+      if (!toggleShowAdjacentCells) {
         Array.from(
           document.querySelectorAll('.highlightAdjacentStone')
         ).forEach((el) => el.parentNode.removeChild(el));
       }
-    })();
-  }, [adjacentCells, toggleShowAdjacentCells]);
-
-  useEffect(() => {
-    if (toggleShowBestMove) {
-      /**
-       * Remove old one before placing the newest one
-       */
-      Array.from(
-        document.querySelectorAll(
-          '.higlightHumanBestMove, .higlightHumanBestMoveCapture'
-        )
-      ).forEach((el) => el.parentNode.removeChild(el));
-
-      const stoneColor = humanBestMove?.isCapturingCell
-        ? 'higlightHumanBestMoveCapture'
-        : 'higlightHumanBestMove';
-      placeShallowStone(humanBestMove.x + 2, humanBestMove.y + 2, stoneColor);
-    } else {
-      if (humanBestMove) {
-        // remove from the DOM
-        Array.from(
-          document.querySelectorAll(
-            '.higlightHumanBestMove, higlightHumanBestMoveCapture'
-          )
-        ).forEach((el) => el.parentNode.removeChild(el));
+      if (!toggleCapture) {
+        console.log(toggleCapture);
+        Array.from(document.querySelectorAll('.captureCellHighlight')).forEach(
+          (el) => el.parentNode.removeChild(el)
+        );
       }
-    }
-  }, [humanBestMove, toggleShowBestMove]);
+    })();
+  }, [adjacentCells, toggleShowAdjacentCells, toggleCapture]);
 
   useEffect(() => {
-    setCurrentPlayer(humanPlayer);
-    const c = props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
-    const humanColor =
-      props.humanPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
-    /**
-     * The AI stone color will always be black or white
-     * The human player should be more options (bonus)
-     */
-    const aiColor =
-      humanColor === 'blackStoneHover' ? 'whiteStoneHover' : 'blackStoneHover';
+    const c = currentPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
     setHoverClassName(c);
-    setAiStoneColor(aiColor);
-  }, [props.humanPlayer]);
+  }, [currentPlayer]);
 
   useEffect(() => {
     (() => {
@@ -206,7 +187,9 @@ export default function Board(props) {
       stone.classList.add('stoneShallow');
       stone.classList.add(mark);
       stone.setAttribute('id', `adjacent-${row}${column}`);
-      stone.innerHTML = `${row}${column}`;
+      stone.innerHTML = `${row <= 9 ? '0' : ''}${row},${
+        column <= 9 ? '0' : ''
+      }${column}`;
       board.appendChild(stone);
     }
   }

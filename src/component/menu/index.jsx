@@ -116,18 +116,22 @@ export default function Menu(props) {
   const newGameCallBack = (playAs) => {
     setIsGameOver(false);
     setWinner('');
-    Array.from(document.querySelectorAll('.highlightAdjacentStone')).forEach(
-      (el) => el.parentNode.removeChild(el)
-    );
+    Array.from(
+      document.querySelectorAll('.highlightAdjacentStone, captureCellHighlight')
+    ).forEach((el) => el.parentNode.removeChild(el));
     props.newGameCb(playAs);
   };
 
   const handleToggleAdjacentCb = () => {
-    props.toggleAdjacentCellsCb();
+    if (!props.toggleCapture) {
+      props.toggleAdjacentCellsCb();
+    }
   };
 
-  const handleToggleShowBestMoveCb = () => {
-    props.toggleShowBestMoveCb();
+  const handleToggleCaptureCb = () => {
+    if (!props.toggleShowAdjacentCells) {
+      props.toggleCaptureCb();
+    }
   };
 
   return (
@@ -145,7 +149,6 @@ export default function Menu(props) {
                   title="AI player"
                 />
               </div>
-              {/* <hr /> */}
               <IconWrapper>
                 <img src={scoresvg} alt="score" title="AI capture score" />
                 <span>
@@ -185,7 +188,6 @@ export default function Menu(props) {
                   title="Human player"
                 />
               </div>
-              {/* <hr /> */}
               <IconWrapper>
                 <img src={scoresvg} alt="score" title="Human capture score" />
                 <span>
@@ -216,14 +218,14 @@ export default function Menu(props) {
           <FlexItem>
             <Button
               className="arrow-pointer"
-              onClick={handleToggleShowBestMoveCb}
+              onClick={handleToggleCaptureCb}
               style={
-                props.toggleShowBestMove
+                props.toggleCapture
                   ? { background: '#357e70', color: '#f1b06c' }
                   : {}
               }
             >
-              Highlight Best Move
+              Cheat - show capture move
             </Button>
           </FlexItem>
           <FlexItem>
@@ -236,8 +238,7 @@ export default function Menu(props) {
                   : {}
               }
             >
-              Highlight Adjacent Cells{' '}
-              {/* <PlayerSpan style={{ fontSize: '1.2em' }}>&#9860;</PlayerSpan> */}
+              Highlight Adjacent Cells
             </Button>
           </FlexItem>
           <FlexItem>
