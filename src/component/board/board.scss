@@ -2,7 +2,7 @@
   border-radius: 50%;
   box-shadow: 2px 2px 4px 0 rgba(0, 0, 0, 0.25),
     -2px -2px 4px 0 rgba(255, 255, 255, 0.25);
-  z-index: 2;
+  z-index: 3;
 }
 
 .stoneShallow {
@@ -26,7 +26,7 @@
   border-radius: 50%;
   align-self: center;
   justify-self: center;
-  z-index: 1;
+  z-index: 2;
   cursor: pointer;
 }
 
@@ -38,6 +38,13 @@
   z-index: 2;
 }
 
+%highlightStoneBase {
+  font-size: 12px;
+  text-align: center;
+  padding-top: 1em;
+  color: gray;
+}
+
 .blackStone {
   background: linear-gradient(145deg, #f6cfa6, #000000);
 }
@@ -46,11 +53,22 @@
 }
 
 .highlightAdjacentStone {
+  @extend %highlightStoneBase;
   background: linear-gradient(145deg, #f6cfa6, #F476C0);
-  font-size: 12px;
-  text-align: center;
-  padding-top: 1em;
-  color: gray;
+}
+
+.higlightHumanBestMove {
+  @extend %highlightStoneBase;
+  background: linear-gradient(145deg, #f6cfa6, #63D19D);
+  z-index: 1;
+  color: #fff;
+}
+
+.higlightHumanBestMoveCapture {
+  @extend %highlightStoneBase;
+  background: linear-gradient(145deg, #f6cfa6, #EE006F);
+  z-index: 1;
+  color: #fff;
 }
 
 .blackStoneHover {
