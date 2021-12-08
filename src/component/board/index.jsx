@@ -58,6 +58,7 @@ export default function Board(props) {
     toggleShowAdjacentCells,
     // toggleShowBestMove,
     toggleCapture,
+    theme,
   } = props;
 
   const outter = [
@@ -72,11 +73,15 @@ export default function Board(props) {
     /**
      * Remove old one before placing the newest one
      */
-    Array.from(
-      document.querySelectorAll('.higlightHumanBestMove')
-    ).forEach((el) => el.parentNode.removeChild(el));
+    Array.from(document.querySelectorAll('.higlightHumanBestMove')).forEach(
+      (el) => el.parentNode.removeChild(el)
+    );
     if (humanBestMove)
-      placeShallowStone(humanBestMove.x + 2, humanBestMove.y + 2, 'higlightHumanBestMove');
+      placeShallowStone(
+        humanBestMove.x + 2,
+        humanBestMove.y + 2,
+        'higlightHumanBestMove'
+      );
   }, [humanBestMove]);
 
   useEffect(() => {
@@ -131,7 +136,14 @@ export default function Board(props) {
   }, [adjacentCells, toggleShowAdjacentCells, toggleCapture]);
 
   useEffect(() => {
-    const c = currentPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
+    console.log(`theme is ? ${theme}`);
+    /**
+     * Default theme is one
+     */
+    let c = currentPlayer === 'O' ? 'whiteStoneHover' : 'blackStoneHover';
+    if (theme === 2) {
+      c = currentPlayer === 'O' ? 'blueStoneHover' : 'redStoneHover';
+    }
     setHoverClassName(c);
   }, [currentPlayer]);
 
@@ -143,8 +155,8 @@ export default function Board(props) {
          * Possible to pass the string color direct to placeStone() instead of using variable.
          * Probably will be using variable to handle player different colors
          */
-        const xColor = 'blackStone';
-        const oColor = 'whiteStone';
+        const xColor = theme === 1 ? 'blackStone' : 'redStone';
+        const oColor = theme === 1 ? 'whiteStone' : 'blueStone';
         for (let row = 0; row < BOARD_SIZE; row++) {
           for (let col = 0; col < BOARD_SIZE; col++) {
             if (board[row][col] === 'O' && boardCopy[row][col] === '') {
