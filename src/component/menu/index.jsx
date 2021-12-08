@@ -4,6 +4,7 @@ import boardBackground from '../../assets/images/wood-pattern.png';
 import './menu.scss';
 import playerAIsvg from '../../assets/icons/chip-ai.svg';
 import playerHumansvg from '../../assets/icons/human-player.svg';
+import playerHumanOnesvg from '../../assets/icons/human-player-right.svg';
 import timersvg from '../../assets/icons/stopwatch.svg';
 import scoresvg from '../../assets/icons/score.svg';
 import gameTurnsvg from '../../assets/icons/game-turn.svg';
@@ -117,7 +118,9 @@ export default function Menu(props) {
     setIsGameOver(false);
     setWinner('');
     Array.from(
-      document.querySelectorAll('.highlightAdjacentStone, .captureCellHighlight, .higlightHumanBestMove')
+      document.querySelectorAll(
+        '.highlightAdjacentStone, .captureCellHighlight, .higlightHumanBestMove'
+      )
     ).forEach((el) => el.parentNode.removeChild(el));
     props.newGameCb();
   };
@@ -140,17 +143,27 @@ export default function Menu(props) {
         <FlexContainer>
           <FlexBox>
             <ItemHeader className="half-ellipse quarter-ellipse-left">
-              <div className="player-name-x">
-                <img
-                  src={playerAIsvg}
-                  alt="player-ai"
-                  width={64}
-                  height={64}
-                  title="AI player"
-                />
-              </div>
+              {props.gameMode === 'solo' ? (
+                <div className="player-name-x">
+                  <img
+                    src={playerAIsvg}
+                    alt="player-ai"
+                    width={64}
+                    height={64}
+                  />
+                </div>
+              ) : (
+                <div className="player-name-x">
+                  <img
+                    src={playerHumanOnesvg}
+                    alt="player-ai"
+                    width={64}
+                    height={64}
+                  />
+                </div>
+              )}
               <IconWrapper>
-                <img src={scoresvg} alt="score" title="AI capture score" />
+                <img src={scoresvg} alt="score" />
                 <span>
                   {props.player2 === 'O'
                     ? props.captureCount.O
@@ -158,7 +171,7 @@ export default function Menu(props) {
                 </span>
               </IconWrapper>
               <IconWrapper>
-                <img src={timersvg} alt="time" title="AI time usage" />
+                <img src={timersvg} alt="time" />
                 <span
                   style={{
                     color: AITimeUsage > 0.5 ? '#ff0000' : '#fff',
@@ -185,11 +198,10 @@ export default function Menu(props) {
                   alt="human-player"
                   width={62}
                   height={64}
-                  title="Human player"
                 />
               </div>
               <IconWrapper>
-                <img src={scoresvg} alt="score" title="Human capture score" />
+                <img src={scoresvg} alt="score" />
                 <span>
                   {props.player2 === 'O'
                     ? props.captureCount.X
@@ -197,7 +209,7 @@ export default function Menu(props) {
                 </span>
               </IconWrapper>
               <IconWrapper>
-                <img src={gameTurnsvg} alt="game-turn" title="Game turns" />
+                <img src={gameTurnsvg} alt="game-turn" />
                 <span>{props.gameTurn}</span>
               </IconWrapper>
               {isGameOver &&
@@ -212,16 +224,13 @@ export default function Menu(props) {
                 ))}
             </ItemHeader>
           </FlexBox>
-          {props.gameMode === 'solo' &&
+          {props.gameMode === 'solo' && (
             <FlexItem>
-              <Button
-                className="arrow-pointer"
-                onClick={props.undo}
-              >
+              <Button className="arrow-pointer" onClick={props.undo}>
                 Cheat - undo last move
               </Button>
             </FlexItem>
-          }
+          )}
 
           <FlexItem>
             <Button
@@ -250,18 +259,12 @@ export default function Menu(props) {
             </Button>
           </FlexItem>
           <FlexItem>
-            <Button
-              className="arrow-pointer"
-              onClick={() => newGameCallBack()}
-            >
+            <Button className="arrow-pointer" onClick={() => newGameCallBack()}>
               Restart Game
             </Button>
           </FlexItem>
           <FlexItem>
-            <Button
-              className="arrow-pointer"
-              onClick={props.backToLobby}
-            >
+            <Button className="arrow-pointer" onClick={props.backToLobby}>
               Back to Lobby
             </Button>
           </FlexItem>
