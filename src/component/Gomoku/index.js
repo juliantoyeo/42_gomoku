@@ -15,6 +15,7 @@ import {
   getCoordinateId,
 } from '../utils/boardUtils';
 import { useAi } from './useAi';
+import { useInterval } from './useInterval';
 import { checkWin } from '../utils/checkWin';
 import {
   generateAdjacentFromAllOccupiedCell,
@@ -43,6 +44,7 @@ import {
   PlayerNameContainer,
   TimerDiv,
   FlexBox,
+  CountDownDiv,
   Container,
 } from './style';
 import Board from '../board';
@@ -53,57 +55,77 @@ const TempGap = styled.div`
   margin-top: 100px;
 `;
 
-const Gomoku = () => {
-  const [gameMode, setGameMode] = useState('solo');
+const Gomoku = ({ gameMode, theme, backToLobby }) => {
   const [gameStatus, setGameStatus] = useState(null);
+  const [countDown, setCountDown] = useState(0);
   const [errorMessage, setErrorMessage] = useState(null);
   const [gameTurn, setGameTurn] = useState(0);
   const [timer, setTimer] = useState(0);
   const [captureCount, setCaptureCount] = useState({ X: 0, O: 0 });
-  const [showHighlight, setShowHighlight] = useState(false);
-  const [showAdjacent, setShowAdjacent] = useState(true);
   const [toggleShowAdjacentCells, setToggleShowAdjacentCells] = useState(false);
   const [toggleCapture, setToggleCapture] = useState(false);
-  const [humanBestMove, setHumanBestMove] = useState();
+  const [humanBestMove, setHumanBestMove] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState('X');
-  const [humanPlayer, setHumanPlayer] = useState('O');
-  const [aiPlayer, setAiPlayer] = useState('X');
-  const [bCell, setBCell] = useState([]);
-  const [tCell, setTCell] = useState([]);
-  const [moveRecord, setMoveRecord] = useState([]); // For all occupied cell
+  const [player1, setPlayer1] = useState('X');
+  const [player2, setPlayer2] = useState('O');
+  const [moveRecord, setMoveRecord] = useState([]);
   const [adjacentCells, setAdjacentCells] = useState([]);
   const [board, setBoard] = useState({
     board: createBoard(),
     available: BOARD_SIZE * BOARD_SIZE,
   });
 
-  const [getBestMove] = useAi(
-    aiPlayer,
-    humanPlayer,
+  const [getBestMovePlayer1] = useAi(
+    player1,
+    player2,
     board,
     adjacentCells,
     captureCount,
     gameTurn,
-    setBCell
+  );
+
+  const [getBestMovePlayer2] = useAi(
+    player2,
+    player1,
+    board,
+    adjacentCells,
+    captureCount,
+    gameTurn,
   );
 
   useEffect(() => {
-    if (gameStatus === null) {
-      if (currentPlayer === aiPlayer) {
+    if (gameStatus === null && countDown === -1) {
+      if (currentPlayer === player1) {
         const start = window.performance.now();
-        const bestMove = getBestMove();
+        const bestMove = getBestMovePlayer1();
         const end = window.performance.now();
         setTimer(end - start);
-        if (bestMove) putMark(bestMove);
-      } else {
-        setHumanBestMove(getBestMove());
+        if (bestMove) {
+          if (gameMode === 'solo') putMark(bestMove);
+          else setHumanBestMove(bestMove);
+        }
+      }
+      else if (gameMode === 'multi' && currentPlayer === player2) {
+        const start = window.performance.now();
+        const bestMove = getBestMovePlayer2();
+        const end = window.performance.now();
+        setTimer(end - start);
+        if (bestMove) {
+          setHumanBestMove(bestMove);
+        }
       }
     }
-  }, [aiPlayer, currentPlayer]);
+  }, [countDown, currentPlayer]);
+
+  useInterval(() => {
+    if (countDown !== -1) {
+      setCountDown((prev) => prev - 1);
+    }
+  }, 1000);
 
   const undo = () => {
     if (moveRecord.length === 0) return;
-    let undoCount = gameMode === 'solo' ? 2 : 1;
+    let undoCount = gameMode === 'solo' ? 2 : 0;
     let newRecord = _.cloneDeep(moveRecord);
     let newBoard = _.cloneDeep(board);
     let lastMove = null;
@@ -132,26 +154,19 @@ const Gomoku = () => {
     setBoard(newBoard);
   };
 
-  const newGame = (selectedPlayer) => {
+  const newGame = () => {
     setBoard({
       board: createBoard(),
       available: BOARD_SIZE * BOARD_SIZE,
     });
     setCurrentPlayer('X');
-    if (selectedPlayer === 'X') {
-      setHumanPlayer('X');
-      setAiPlayer('O');
-    } else {
-      setHumanPlayer('O');
-      setAiPlayer('X');
-    }
+    setTimer(0);
     setCaptureCount({ X: 0, O: 0 });
     setGameTurn(0);
-    setBCell([]);
-    setTCell([]);
     setAdjacentCells([]);
     setMoveRecord([]);
     setGameStatus(null);
+    setCountDown(0);
   };
 
   const putMark = ({ y, x }) => {
@@ -173,18 +188,14 @@ const Gomoku = () => {
       }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;
-      const result = checkCapture(newBoard, currentPlayer, captureCount, {
-        y,
-        x,
-      });
+      const result = checkCapture(newBoard, currentPlayer, captureCount, { y, x });
       newBoard = result.board;
       setBoard(newBoard);
       setCaptureCount(result.captured);
       setCurrentPlayer(nextPlayer);
       setGameTurn((prev) => prev + 1);
       const currentMove = {
-        y: y,
-        x: x,
+        y: y, x: x,
         owner: currentPlayer,
       };
       newAdjacentCells = generateAdjacentFromLastOccupiedCell(
@@ -201,40 +212,9 @@ const Gomoku = () => {
           capturedCell: result.capturedCell,
         },
       ]);
-      // if (checkWin(newBoard, currentPlayer, result.captured, y, x))
-      //   setGameStatus(currentPlayer);
-      // else if (newBoard.available === 0) setGameStatus('tie');
       gameResult = checkWin(newBoard, currentPlayer, result.captured, y, x);
       if (gameResult) setGameStatus(gameResult);
     }
-  };
-
-  const getGameStatus = () => {
-    if (gameStatus) {
-      if (gameStatus === 'tie') return 'Game end, result : tie';
-      if (gameStatus === 'X') return 'Game end, result : X wins';
-      if (gameStatus === 'O') return 'Game end, result : O wins';
-    }
-  };
-
-  const getHighlight = ({ y, x }) => {
-    const selectedBcell = _.find(bCell, (cell) => cell.y === y && cell.x === x);
-    const selectedTcell = _.find(tCell, (cell) => cell.y === y && cell.x === x);
-    if (selectedBcell && selectedTcell) return '#555555';
-    else if (selectedBcell) return '#339933';
-    else if (selectedTcell) return '#993333';
-    return null;
-  };
-
-  const getAdjacent = ({ y, x }) => {
-    const selectedCell = _.find(
-      adjacentCells,
-      (cell) => cell.y === y && cell.x === x
-    );
-    if (selectedCell?.isIllegal) return '#993333';
-    else if (selectedCell?.isCapture) return '#339999';
-    else if (selectedCell) return '#333399';
-    return null;
   };
 
   const boardCallback = (y, x) => {
@@ -255,109 +235,39 @@ const Gomoku = () => {
 
   return (
     <>
-      <MainContainer>
-        <MainDisplayContainer>
-          <BoardContainer>
-            {_.map(board.board, (row, y) => {
-              return _.map(row, (col, x) => {
-                const hightLight = showHighlight
-                  ? getHighlight({ y, x })
-                  : null;
-                const adjacent = showAdjacent ? getAdjacent({ y, x }) : null;
-                return (
-                  <Cell
-                    key={x}
-                    onClick={() => putMark({ y, x })}
-                    hightLight={hightLight}
-                    adjacent={adjacent}
-                  >
-                    <CellNumber>{`(${y}, ${x})`}</CellNumber>
-                    {board.board[y][x]}
-                  </Cell>
-                );
-              });
-            })}
-          </BoardContainer>
-          <RightContainer>
-            <GameStatus>{getGameStatus()}</GameStatus>
-            <GameStatus>
-              <div>{errorMessage}</div>
-            </GameStatus>
-            <GameStatus>
-              <div>AI time usage</div>
-              <TimerDiv time={timer / 1000}>
-                {(timer / 1000).toFixed(3)} sec
-              </TimerDiv>
-            </GameStatus>
-            <GameStatus>
-              <div>Game turn</div>
-              <div>Turn: {gameTurn}</div>
-            </GameStatus>
-            <GameStatus>
-              <div>Capture count</div>
-              <div>X: {captureCount.X}</div>
-              <div>O: {captureCount.O}</div>
-            </GameStatus>
-            <StyledButton
-              onClick={() => setShowHighlight(!showHighlight)}
-              active={showHighlight}
-            >
-              <div>Highlight best and threat cell on player turn</div>
-            </StyledButton>
-            <StyledButton
-              onClick={() => setShowAdjacent(!showAdjacent)}
-              active={showAdjacent}
-            >
-              <div>Highlight adjacent cell</div>
-            </StyledButton>
-            <PlayerTurnContainer>
-              <PlayerNameContainer active={currentPlayer === 'X'}>
-                X
-              </PlayerNameContainer>
-              <PlayerNameContainer active={currentPlayer === 'O'}>
-                O
-              </PlayerNameContainer>
-            </PlayerTurnContainer>
-            <StyledButton onClick={undo}>
-              <div>Undo last move</div>
-              <div>Move saved : ( {moveRecord.length} )</div>
-            </StyledButton>
-            <StyledButton onClick={() => newGame('X')}>
-              <div>New Game Play as X</div>
-            </StyledButton>
-            <StyledButton onClick={() => newGame('O')}>
-              <div>New Game Play as O</div>
-            </StyledButton>
-          </RightContainer>
-        </MainDisplayContainer>
-      </MainContainer>
-      {humanPlayer && board && (
-        <>
-          <TempGap>&nbsp;</TempGap>
-          <FlexBox>
-            <Board
-              currentPlayer={currentPlayer}
-              board={board}
-              cb={boardCallback}
-              adjacentCells={adjacentCells}
-              toggleShowAdjacentCells={toggleShowAdjacentCells}
-              toggleCapture={toggleCapture}
-            />
-            <Menu
-              humanPlayer={humanPlayer}
-              timer={timer}
-              gameTurn={gameTurn}
-              captureCount={captureCount}
-              gameStatus={gameStatus}
-              newGameCb={menuNewGameCallback}
-              toggleAdjacentCellsCb={handleToggleShowAdjacentCellsCb}
-              toggleShowAdjacentCells={toggleShowAdjacentCells}
-              toggleCaptureCb={handleToggleCaptureCb}
-              toggleCapture={toggleCapture}
-            />
-          </FlexBox>
-        </>
-      )}
+      <FlexBox>
+        <Board
+          currentPlayer={currentPlayer}
+          board={board}
+          cb={boardCallback}
+          adjacentCells={adjacentCells}
+          toggleShowAdjacentCells={toggleShowAdjacentCells}
+          toggleCapture={toggleCapture}
+          theme={theme}
+          humanBestMove={humanBestMove}
+        />
+        <Menu
+          player2={player2}
+          backToLobby={backToLobby}
+          timer={timer}
+          gameTurn={gameTurn}
+          gameMode={gameMode}
+          captureCount={captureCount}
+          gameStatus={gameStatus}
+          undo={undo}
+          newGameCb={menuNewGameCallback}
+          toggleAdjacentCellsCb={handleToggleShowAdjacentCellsCb}
+          toggleShowAdjacentCells={toggleShowAdjacentCells}
+          toggleCaptureCb={handleToggleCaptureCb}
+          toggleCapture={toggleCapture}
+        />
+
+      </FlexBox>
+      {countDown !== -1 &&
+        <CountDownDiv>
+          {countDown === 0 ? 'Start !' : `${countDown}`}
+        </CountDownDiv>
+      }
     </>
   );
 };

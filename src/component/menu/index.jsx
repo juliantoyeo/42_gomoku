@@ -100,9 +100,9 @@ export default function Menu(props) {
     (() => {
       if (props.gameStatus) {
         if (props.gameStatus !== 'tie') {
-          if (props.gameStatus === 'X' && props.humanPlayer === 'X') {
+          if (props.gameStatus === 'X' && props.player2 === 'X') {
             setWinner('human');
-          } else if (props.gameStatus === 'O' && props.humanPlayer === 'O') {
+          } else if (props.gameStatus === 'O' && props.player2 === 'O') {
             setWinner('human');
           } else {
             setWinner('AI');
@@ -113,13 +113,13 @@ export default function Menu(props) {
     })();
   }, [props.gameStatus]);
 
-  const newGameCallBack = (playAs) => {
+  const newGameCallBack = () => {
     setIsGameOver(false);
     setWinner('');
     Array.from(
-      document.querySelectorAll('.highlightAdjacentStone, captureCellHighlight')
+      document.querySelectorAll('.highlightAdjacentStone, .captureCellHighlight, .higlightHumanBestMove')
     ).forEach((el) => el.parentNode.removeChild(el));
-    props.newGameCb(playAs);
+    props.newGameCb();
   };
 
   const handleToggleAdjacentCb = () => {
@@ -152,7 +152,7 @@ export default function Menu(props) {
               <IconWrapper>
                 <img src={scoresvg} alt="score" title="AI capture score" />
                 <span>
-                  {props.humanPlayer === 'O'
+                  {props.player2 === 'O'
                     ? props.captureCount.O
                     : props.captureCount.X}
                 </span>
@@ -191,7 +191,7 @@ export default function Menu(props) {
               <IconWrapper>
                 <img src={scoresvg} alt="score" title="Human capture score" />
                 <span>
-                  {props.humanPlayer === 'O'
+                  {props.player2 === 'O'
                     ? props.captureCount.X
                     : props.captureCount.O}
                 </span>
@@ -212,9 +212,17 @@ export default function Menu(props) {
                 ))}
             </ItemHeader>
           </FlexBox>
-          <FlexItem>
-            <Button className="arrow-pointer">Placeholder</Button>
-          </FlexItem>
+          {props.gameMode === 'solo' &&
+            <FlexItem>
+              <Button
+                className="arrow-pointer"
+                onClick={props.undo}
+              >
+                Cheat - undo last move
+              </Button>
+            </FlexItem>
+          }
+
           <FlexItem>
             <Button
               className="arrow-pointer"
@@ -244,17 +252,17 @@ export default function Menu(props) {
           <FlexItem>
             <Button
               className="arrow-pointer"
-              onClick={() => newGameCallBack('X')}
+              onClick={() => newGameCallBack()}
             >
-              New Game PLAY as <PlayerSpan>X</PlayerSpan>
+              Restart Game
             </Button>
           </FlexItem>
           <FlexItem>
             <Button
               className="arrow-pointer"
-              onClick={() => newGameCallBack('O')}
+              onClick={props.backToLobby}
             >
-              New Game PLAY as <PlayerSpan>O</PlayerSpan>
+              Back to Lobby
             </Button>
           </FlexItem>
         </FlexContainer>

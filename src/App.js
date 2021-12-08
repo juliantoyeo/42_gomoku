@@ -1,10 +1,9 @@
-import logo from './logo.svg';
 import './App.css';
-import Gomoku from './component/Gomoku'
+import Home from './component/Home';
 
 function App() {
   return (
-    <Gomoku />
+    <Home />
   );
 }
 

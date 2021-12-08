@@ -17,46 +17,47 @@ import {
 } from '../utils/boardUtils';
 
 import { checkWin } from '../utils/checkWin';
-import { generateAdjacentFromAllOccupiedCell, generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
+import { generateAdjacentFromLastOccupiedCell } from '../utils/adjacentCellUtils';
 import { evaluteCells } from '../utils/evaluateUtils';
 import { generatePotentialList } from '../utils/cellUtils';
 import { evaluateBoard } from '../utils/evaluteBoard';
 import { checkCapture } from '../utils/captureUtils';
 
-export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount, gameTurn, setBCell) => {
-  // const [lastMove, setLastMove] = useState([]);
-  // const [moveRecord, setMoveRecord] = useState([]); // For all occupied cell
-  // const [adjacentCells, setAdjacentCells] = useState([]);
-  // const [tmpAdjacentCells, setTmpAdjacentCells] = useState([]);
+export const useAi = (
+  me, 
+  enemy, 
+  board,
+  adjacentCells, 
+  captureCount, 
+  gameTurn
+) => {
 
   const minimax = (board, adj_cells, curr_player, curr_capture, depth, isMaximize, last_move, alpha, beta) => {
     let best_move = { y: 0, x: 0 }
     let boardCopy = _.cloneDeep(board);
     let curr_adj = _.cloneDeep(adj_cells);
     let capture_copy = _.clone(curr_capture);
-    let take_best = (gameTurn + depth < 3) && (aiPlayer === 'X') ? 4 : TAKE_BEST_N;
+    let take_best = (gameTurn + depth < 3) && (me === 'X') ? 4 : TAKE_BEST_N;
     if (depth === 6 || checkWin(boardCopy, curr_player, capture_copy, last_move)) {
-      const node = evaluateBoard(boardCopy.board, aiPlayer, curr_adj, capture_copy, take_best);
+      const node = evaluateBoard(boardCopy.board, me, curr_adj, capture_copy, take_best);
       const last_node = node[0];
       // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
       // printBoard(boardCopy.board, curr_adj, []);
       // console.log('capture_copy', capture_copy);
       // console.log('last_node', last_node);
-      if (last_node.category === 'capture' && last_node.owner === humanPlayer) {
+      if (last_node.category === 'capture' && last_node.owner === enemy) {
         last_node.score = 20;
       }
-      last_node.score = last_node.score + capture_copy[aiPlayer] * -2;
+      last_node.score = last_node.score + capture_copy[me] * -2;
       // console.log('last_node.score', last_node.score);
       return last_node.score;
     }
     if (last_move) {
       curr_adj = generateAdjacentFromLastOccupiedCell(boardCopy.board, curr_player, adj_cells, last_move);
     }
-    // console.log('===============');
     // console.log('curr_adj', curr_adj);
     const node = evaluteCells(boardCopy.board, curr_player, curr_adj, capture_copy, take_best);
     const list = generatePotentialList(node);
-    if (depth === 0) setBCell(list);
     
     // console.log(`depth`, depth, `curr_player`, curr_player, `isMaximize`, isMaximize, `last_move`, last_move);
     // console.log(`boardCopy.available`, boardCopy.available);
@@ -81,7 +82,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
           capture_copy = result.captured;
           curr_adj = [...curr_adj, ...result.newAdjacentCells];
         }
-        let val = minimax(boardCopy, curr_adj, humanPlayer, capture_copy, depth + 1, false, cell, alpha, beta);
+        let val = minimax(boardCopy, curr_adj, enemy, capture_copy, depth + 1, false, cell, alpha, beta);
         // best = Math.max(best, val);
         // if (best === val) best_move = cell;
         if (val > best) {
@@ -118,7 +119,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
           capture_copy = result.captured;
           curr_adj = [...curr_adj, ...result.newAdjacentCells];
         }
-        let val = minimax(boardCopy, curr_adj, aiPlayer, capture_copy, depth + 1, true, cell, alpha, beta);
+        let val = minimax(boardCopy, curr_adj, me, capture_copy, depth + 1, true, cell, alpha, beta);
         // best = Math.min(best, val);
         // if (best === val) best_move = cell;
         if (val < best) {
@@ -145,8 +146,8 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
     const boardCopy = _.cloneDeep(board);
     const adj_cells_copy = _.cloneDeep(adjacentCells);
     const curr_capture = _.cloneDeep(captureCount);
-    const best_move = minimax(boardCopy, adj_cells_copy, aiPlayer, curr_capture, 0, true, null, MIN, MAX);
-    console.log('best_move', best_move);
+    const best_move = minimax(boardCopy, adj_cells_copy, me, curr_capture, 0, true, null, MIN, MAX);
+    // console.log('best_move', best_move);
     return best_move;
   }
 
@@ -158,7 +159,7 @@ export const useAi = (aiPlayer, humanPlayer, board, adjacentCells, captureCount,
       return ({ y, x });
     }
     else {
-       AiMove();
+      return  AiMove();
     }
   }
 

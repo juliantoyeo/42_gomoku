@@ -69,6 +69,17 @@ export default function Board(props) {
   ];
 
   useEffect(() => {
+    /**
+     * Remove old one before placing the newest one
+     */
+    Array.from(
+      document.querySelectorAll('.higlightHumanBestMove')
+    ).forEach((el) => el.parentNode.removeChild(el));
+    if (humanBestMove)
+      placeShallowStone(humanBestMove.x + 2, humanBestMove.y + 2, 'higlightHumanBestMove');
+  }, [humanBestMove]);
+
+  useEffect(() => {
     (() => {
       if (toggleShowAdjacentCells || toggleCapture) {
         if (!adjacentCellsCopy) {
@@ -112,7 +123,6 @@ export default function Board(props) {
         ).forEach((el) => el.parentNode.removeChild(el));
       }
       if (!toggleCapture) {
-        console.log(toggleCapture);
         Array.from(document.querySelectorAll('.captureCellHighlight')).forEach(
           (el) => el.parentNode.removeChild(el)
         );
@@ -187,9 +197,8 @@ export default function Board(props) {
       stone.classList.add('stoneShallow');
       stone.classList.add(mark);
       stone.setAttribute('id', `adjacent-${row}${column}`);
-      stone.innerHTML = `${row <= 9 ? '0' : ''}${row},${
-        column <= 9 ? '0' : ''
-      }${column}`;
+      stone.innerHTML = `${row <= 9 ? '0' : ''}${row},${column <= 9 ? '0' : ''
+        }${column}`;
       board.appendChild(stone);
     }
   }
