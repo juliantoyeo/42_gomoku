@@ -96,16 +96,25 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
   useEffect(() => {
     if (gameStatus === null && countDown === -1) {
       if (currentPlayer === player1) {
-        const start = window.performance.now();
-        const bestMove = getBestMovePlayer1();
-        const end = window.performance.now();
-        setTimer(end - start);
-        if (bestMove) {
-          if (gameMode === 'solo') putMark(bestMove);
-          else setHumanBestMove(bestMove);
-        }
-      }
-      else if (gameMode === 'multi' && currentPlayer === player2) {
+        /**
+         * Use setTimeout() for making a pause between human player and AI
+         * otherwise AI plays very quick and the sound when putting the stone
+         * get's desynchronized
+         * WARNING!
+         * This doesn't interfere with the AI timing becuase the time
+         * is set inside the setTimeout();
+         */
+        setTimeout(() => {
+          const start = window.performance.now();
+          const bestMove = getBestMovePlayer1();
+          const end = window.performance.now();
+          setTimer(end - start);
+          if (bestMove) {
+            if (gameMode === 'solo') putMark(bestMove);
+            else setHumanBestMove(bestMove);
+          }
+        }, 500);
+      } else if (gameMode === 'multi' && currentPlayer === player2) {
         const start = window.performance.now();
         const bestMove = getBestMovePlayer2();
         const end = window.performance.now();
@@ -170,7 +179,7 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
   };
 
   const putMark = ({ y, x }) => {
-    if (gameStatus) return;
+    if (gameStatus) return 'game over';
     let gameResult = null;
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
@@ -179,23 +188,27 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
       setErrorMessage('');
       if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
         setErrorMessage('Illegal move into capture area');
-        return;
+        return 'Illegal move into capture area';
       } else if (!checkIfCaptureMove(newBoard.board, currentPlayer, { y, x })) {
         if (checkMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
           setErrorMessage('Illegal move that will result in double three');
-          return;
+          return 'Illegal move that will result in double three';
         }
       }
       newBoard.board[y][x] = currentPlayer;
       newBoard.available = board.available - 1;
-      const result = checkCapture(newBoard, currentPlayer, captureCount, { y, x });
+      const result = checkCapture(newBoard, currentPlayer, captureCount, {
+        y,
+        x,
+      });
       newBoard = result.board;
       setBoard(newBoard);
       setCaptureCount(result.captured);
       setCurrentPlayer(nextPlayer);
       setGameTurn((prev) => prev + 1);
       const currentMove = {
-        y: y, x: x,
+        y: y,
+        x: x,
         owner: currentPlayer,
       };
       newAdjacentCells = generateAdjacentFromLastOccupiedCell(
@@ -215,10 +228,11 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
       gameResult = checkWin(newBoard, currentPlayer, result.captured, y, x);
       if (gameResult) setGameStatus(gameResult);
     }
+    return 'ok';
   };
 
   const boardCallback = (y, x) => {
-    putMark({ y, x });
+    return putMark({ y, x });
   };
 
   const menuNewGameCallback = (playAs) => {
@@ -245,6 +259,8 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
           toggleCapture={toggleCapture}
           theme={theme}
           humanBestMove={humanBestMove}
+          captureCount={captureCount}
+          gameStatus={gameStatus}
         />
         <Menu
           player2={player2}
@@ -261,13 +277,12 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
           toggleCaptureCb={handleToggleCaptureCb}
           toggleCapture={toggleCapture}
         />
-
       </FlexBox>
-      {countDown !== -1 &&
+      {countDown !== -1 && (
         <CountDownDiv>
           {countDown === 0 ? 'Start !' : `${countDown}`}
         </CountDownDiv>
-      }
+      )}
     </>
   );
 };
