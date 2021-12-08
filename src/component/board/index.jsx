@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
+import toast, { Toaster } from 'react-hot-toast';
+import Sound from '../utils/sound';
 import boardBackground from '../../assets/images/wood-pattern.png';
+import placeStoneSoundOne from '../../assets/sounds/placeStone.wav';
+import eletricShockSound from '../../assets/sounds/electricShock.wav';
+import laserGameOver from '../../assets/sounds/laserGameOver.wav';
+import explosionSound from '../../assets/sounds/explosion.wav';
+import gameOverSound from '../../assets/sounds/gameOver.wav';
 import './board.scss';
 import { BOARD_SIZE } from '../utils/boardUtils';
 
@@ -41,9 +48,9 @@ const Mark = styled.div`
 export default function Board(props) {
   // const [currentPlayer, setCurrentPlayer] = useState('O');
   const [hoverClassName, setHoverClassName] = useState('');
-  const [humanStoneColor, setHumanStoneColor] = useState('');
-  const [aiStoneColor, setAiStoneColor] = useState('');
   const [adjacentCellsCopy, setAdjacentCellsCopy] = useState();
+  const [captureCounter, setCaptureCounter] = useState({ X: 0, O: 0 });
+
   const [boardCopy, setBoardCopy] = useState(
     Array.from({ length: BOARD_SIZE }, () =>
       Array.from({ length: BOARD_SIZE }, () => '')
@@ -59,6 +66,8 @@ export default function Board(props) {
     // toggleShowBestMove,
     toggleCapture,
     theme,
+    captureCount,
+    gameStatus,
   } = props;
 
   const outter = [
@@ -83,6 +92,28 @@ export default function Board(props) {
         'higlightHumanBestMove'
       );
   }, [humanBestMove]);
+
+  useEffect(() => {
+    (() => {
+      if (
+        captureCount.X > captureCounter.X ||
+        captureCount.O > captureCounter.O
+      ) {
+        const captureSound = new Sound(explosionSound);
+        captureSound.play();
+        setCaptureCounter({ ...captureCount });
+      }
+    })();
+  }, [captureCount]);
+
+  useEffect(() => {
+    (() => {
+      if (gameStatus) {
+        const gameOver = new Sound(gameOverSound);
+        gameOver.play();
+      }
+    })();
+  }, [gameStatus]);
 
   useEffect(() => {
     (() => {
@@ -136,7 +167,6 @@ export default function Board(props) {
   }, [adjacentCells, toggleShowAdjacentCells, toggleCapture]);
 
   useEffect(() => {
-    console.log(`theme is ? ${theme}`);
     /**
      * Default theme is one
      */
@@ -209,20 +239,40 @@ export default function Board(props) {
       stone.classList.add('stoneShallow');
       stone.classList.add(mark);
       stone.setAttribute('id', `adjacent-${row}${column}`);
-      stone.innerHTML = `${row <= 9 ? '0' : ''}${row},${column <= 9 ? '0' : ''
-        }${column}`;
+      stone.innerHTML = `${row <= 9 ? '0' : ''}${row},${
+        column <= 9 ? '0' : ''
+      }${column}`;
       board.appendChild(stone);
     }
   }
 
+  const notify = (msg) =>
+    toast(msg, {
+      style: {
+        background: '#ff0000',
+        color: '#fff',
+      },
+    });
+
   function handleClick(indexOutter, indexInner) {
-    cb(indexOutter, indexInner);
+    const ret = cb(indexOutter, indexInner);
+    const placeStoneSound = new Sound(placeStoneSoundOne);
+    const gameOver = new Sound(laserGameOver);
+    const errorSound = new Sound(eletricShockSound);
+
+    if (ret === 'ok') {
+      placeStoneSound.play();
+    } else {
+      errorSound.play();
+      notify(ret);
+    }
   }
 
   return !currentPlayer ? (
     <p>loading...</p>
   ) : (
-    <>
+    <div>
+      <Toaster />
       <Container>
         <BoardContainer id="board">
           <Mark
@@ -317,6 +367,6 @@ export default function Board(props) {
           })}
         </BoardContainer>
       </Container>
-    </>
+    </div>
   );
 }
