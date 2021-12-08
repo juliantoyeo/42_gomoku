@@ -48,8 +48,17 @@
 .blackStone {
   background: linear-gradient(145deg, #f6cfa6, #000000);
 }
+
 .whiteStone {
   background: linear-gradient(145deg, #f6cfa6, #ffffff);
+}
+
+.blueStone {
+  background: linear-gradient(145deg, #f6cfa6, #0000ff);
+}
+
+.redStone {
+  background: linear-gradient(145deg, #f6cfa6, #ff0000);
 }
 
 .highlightAdjacentStone {
@@ -66,7 +75,7 @@
 
 .captureCellHighlight {
   @extend %highlightStoneBase;
-  background: linear-gradient(145deg, #f6cfa6, green);
+  background: linear-gradient(145deg, #f6cfa6, #008000);
   z-index: 1;
   color: #fff;
 }
@@ -82,5 +91,19 @@
   @extend %baseStoneHover;
   &:hover {
     background: linear-gradient(145deg, #f6cfa6, #ffffff);
+  }
+}
+
+.blueStoneHover {
+  @extend %baseStoneHover;
+  &:hover {
+    background: linear-gradient(145deg, #f6cfa6, #0000ff);
+  }
+}
+
+.redStoneHover {
+  @extend %baseStoneHover;
+  &:hover {
+    background: linear-gradient(145deg, #f6cfa6, #ff0000);
   }
 }
