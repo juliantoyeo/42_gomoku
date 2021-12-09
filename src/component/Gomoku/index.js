@@ -104,16 +104,14 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
          * This doesn't interfere with the AI timing becuase the time
          * is set inside the setTimeout();
          */
-        setTimeout(() => {
-          const start = window.performance.now();
-          const bestMove = getBestMovePlayer1();
-          const end = window.performance.now();
-          setTimer(end - start);
-          if (bestMove) {
-            if (gameMode === 'solo') putMark(bestMove);
-            else setHumanBestMove(bestMove);
-          }
-        }, 200);
+        const start = window.performance.now();
+        const bestMove = getBestMovePlayer1();
+        const end = window.performance.now();
+        setTimer(end - start);
+        if (bestMove) {
+          if (gameMode === 'solo') putMark(bestMove);
+          else setHumanBestMove(bestMove);
+        }
       } else if (gameMode === 'multi' && currentPlayer === player2) {
         const start = window.performance.now();
         const bestMove = getBestMovePlayer2();
