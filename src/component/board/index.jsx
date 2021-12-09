@@ -5,7 +5,6 @@ import Sound from '../utils/sound';
 import boardBackground from '../../assets/images/wood-pattern.png';
 import placeStoneSoundOne from '../../assets/sounds/placeStone.wav';
 import eletricShockSound from '../../assets/sounds/electricShock.wav';
-import laserGameOver from '../../assets/sounds/laserGameOver.wav';
 import explosionSound from '../../assets/sounds/explosion.wav';
 import gameOverSound from '../../assets/sounds/gameOver.wav';
 import './board.scss';
@@ -46,7 +45,6 @@ const Mark = styled.div`
 `;
 
 export default function Board(props) {
-  // const [currentPlayer, setCurrentPlayer] = useState('O');
   const [hoverClassName, setHoverClassName] = useState('');
   const [adjacentCellsCopy, setAdjacentCellsCopy] = useState();
   const [captureCounter, setCaptureCounter] = useState({ X: 0, O: 0 });
@@ -63,7 +61,6 @@ export default function Board(props) {
     cb,
     adjacentCells,
     toggleShowAdjacentCells,
-    // toggleShowBestMove,
     toggleCapture,
     theme,
     captureCount,
@@ -258,7 +255,6 @@ export default function Board(props) {
   function handleClick(indexOutter, indexInner) {
     const ret = cb(indexOutter, indexInner);
     const placeStoneSound = new Sound(placeStoneSoundOne);
-    const gameOver = new Sound(laserGameOver);
     const errorSound = new Sound(eletricShockSound);
 
     if (ret === 'ok') {

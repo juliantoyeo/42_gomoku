@@ -39,9 +39,6 @@ const Button = styled.div`
   display: table-cell;
   vertical-align: middle;
   color: #fff;
-  // height: 60px;
-
-  // border: 1px solid #000;
 `;
 
 const FlexBox = styled.div`
@@ -66,17 +63,6 @@ const IconWrapper = styled.div`
     color: #fff;
     font-family: 'Chakra Petch', sans-serif;
   }
-`;
-
-const PlayerSpan = styled.span`
-  display: inline-block;
-  width: 25px;
-  height: 25px;
-  border: 1px solid #fff;
-  border-radius: 50%;
-  font-weight: bold;
-  font-size: 1.2em;
-  margin-left: 0.5em;
 `;
 
 const WinnerImgWrapper = styled.div`
