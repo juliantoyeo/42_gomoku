@@ -111,6 +111,7 @@ export default function Board(props) {
       if (gameStatus) {
         const gameOver = new Sound(gameOverSound);
         gameOver.play();
+        setCaptureCounter({ X: 0, O: 0 });
       }
     })();
   }, [gameStatus]);
