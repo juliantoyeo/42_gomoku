@@ -159,7 +159,7 @@ export const useAi = (
       return ({ y, x });
     }
     else {
-      return  AiMove();
+      return AiMove();
     }
   }
 

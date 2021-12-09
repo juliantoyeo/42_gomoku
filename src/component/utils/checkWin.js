@@ -1,7 +1,7 @@
 import { CONNECT_N, dir_array } from './boardUtils';
 import { getCoordinate } from './getCoordinate';
 
-const checkPotentialCapture = (board, curr_player, cell, curr_dir) => {
+export const checkPotentialCapture = (board, curr_player, cell, curr_dir) => {
   const { y, x } = cell;
   const enemy = curr_player === 'X' ? 'O' : 'X';
   let isCapturable = false;
@@ -58,7 +58,7 @@ const checkWinningRow = (board, curr_player, curr_capture, dir, y, x) => {
     else
       break;
   }
-  if (counter === CONNECT_N) {
+  if (counter >= CONNECT_N) {
     win = true;
     // console.log('curr_capture[curr_player]', curr_capture[curr_player]);
     if (curr_capture[curr_player] === 8) {

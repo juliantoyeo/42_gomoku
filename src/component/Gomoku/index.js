@@ -133,22 +133,26 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
   }, 1000);
 
   const undo = () => {
-    if (moveRecord.length === 0) return;
+    if (moveRecord.length < 2) return;
     let undoCount = gameMode === 'solo' ? 2 : 0;
     let newRecord = _.cloneDeep(moveRecord);
     let newBoard = _.cloneDeep(board);
     let lastMove = null;
+    let unCaptureCount = { X: 0, O: 0 };
     for (let i = 0; i < undoCount; i++) {
-      console.log('undo');
+      // console.log('undo');
       lastMove = _.last(newRecord);
-      newBoard.board[lastMove.y][lastMove.x] = '';
-      newBoard.available = board.available + 1;
-      for (let capturedCell of lastMove.capturedCell) {
-        const capturedPlayer = lastMove.owner === 'X' ? 'O' : 'X';
-        newBoard.board[capturedCell.y][capturedCell.x] = capturedPlayer;
-        newBoard.available--;
+      if (lastMove) {
+        newBoard.board[lastMove.y][lastMove.x] = '';
+        newBoard.available = board.available + 1;
+        for (let capturedCell of lastMove.capturedCell) {
+          const capturedPlayer = lastMove.owner === 'X' ? 'O' : 'X';
+          newBoard.board[capturedCell.y][capturedCell.x] = capturedPlayer;
+          unCaptureCount[capturedPlayer]++;
+          newBoard.available--;
+        }
+        newRecord.pop();
       }
-      newRecord.pop();
     }
     const newAdjacentCells = generateAdjacentFromAllOccupiedCell(
       newBoard.board,
@@ -159,6 +163,10 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
     setMoveRecord(newRecord);
     setGameTurn((prev) => prev - undoCount);
     setCurrentPlayer(lastMove.owner);
+    setCaptureCount((prev) => ({
+      X: prev.X - unCaptureCount.X,
+      O: prev.O - unCaptureCount.O,
+    }));
     setGameStatus(null);
     setBoard(newBoard);
   };

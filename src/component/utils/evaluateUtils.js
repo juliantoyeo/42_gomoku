@@ -6,10 +6,13 @@ import {
   TAKE_BEST_N,
   patterns,
   patterns_index,
-  getCoordinateId
+  getCoordinateId,
+  dir_array
 } from './boardUtils';
 
 import { getCoordinate } from './getCoordinate';
+
+import { checkPotentialCapture } from './/checkWin';
 
 const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, adj_cells, curr_capture) => {
   let owner = '';
@@ -179,9 +182,12 @@ const getBlock = (curr_board, adj_cells, dir) => {
     let start = { y, x };
     let f_offset = 0;
     let b_offset = 0;
+    // if (y === 14) {
+    //   console.log('cell', cell);
+    // }
     // let backward = true;
     // let forward = true;
-    let consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
+    // let consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
     let isEmptyBlock = true;
     let selectedCell = null;
     // let firstCell = null;
@@ -191,6 +197,9 @@ const getBlock = (curr_board, adj_cells, dir) => {
       // if (forward) {
       next = getCoordinate(y, x, i, dir, true, true);
       const overlapped_cell = _.find(adj_cells, (cell) => cell.id === next.id);
+      // if (y === 14) {
+      //   console.log('overlapped_cell', overlapped_cell);
+      // }
 
       if (overlapped_cell) {
         if (overlapped_cell.isIllegal) break;
@@ -201,13 +210,13 @@ const getBlock = (curr_board, adj_cells, dir) => {
       if (typeof selectedCell !== 'undefined') {
         if (selectedCell !== '') {
           // if (!firstCell) firstCell = next;
-          consecutive_empty = 0;
+          // consecutive_empty = 0;
           isEmptyBlock = false;
         }
-        else {
-          consecutive_empty++;
-        }
-        if (consecutive_empty === 3) break;
+        // else {
+        //   consecutive_empty++;
+        // }
+        // if (consecutive_empty === 3) break;
         block = [...block, selectedCell];
       }
       else break;
@@ -215,7 +224,7 @@ const getBlock = (curr_board, adj_cells, dir) => {
       
       // }
     }
-    consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
+    // consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
     for (let i = 1; i < CONNECT_N + b_offset; i++) { // scan 4 cell backward to get all the cell content
       // if (backward) {
       next = getCoordinate(y, x, i, dir, false, true);
@@ -230,13 +239,13 @@ const getBlock = (curr_board, adj_cells, dir) => {
       if (typeof selectedCell !== 'undefined') {
         if (selectedCell !== '') {
           // firstCell = next;
-          consecutive_empty = 0;
+          // consecutive_empty = 0;
           isEmptyBlock = false;
         }
-        else {
-          consecutive_empty++;
-        }
-        if (consecutive_empty === 3) break;
+        // else {
+        //   consecutive_empty++;
+        // }
+        // if (consecutive_empty === 3) break;
         block = [selectedCell, ...block];
         start = next;
       }
@@ -270,7 +279,17 @@ const getBlock = (curr_board, adj_cells, dir) => {
   return allBlock;
 }
 
-
+const findConnectedCells = (node) => {
+  // console.log('node', node);
+  const start = node.start;
+  const connected_cells = [start];
+  for (let i = 1; i < node.pattern.length; i++) {
+    if (node.pattern[i] === 0) continue;
+    connected_cells.push(getCoordinate(start.y, start.x, i, node.dir, true, false));
+  }
+  // console.log('connected_cells', connected_cells);
+  return connected_cells;
+}
 
 export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, take_best) => {
   // let b_node = [];
@@ -320,15 +339,35 @@ export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, t
   //     ['asc']
   //   ), take_best
   // );
-  const combinedNode = _.take(
+  const combinedNode = [...d_node_1, ...d_node_2, ...h_node, ...v_node];
+  // const combinedNode = [...h_node];
+  
+  const bestNode = _.take(
     _.orderBy(
-      [...d_node_1, ...d_node_2, ...h_node, ...v_node],
-      // [...h_node],
+      combinedNode,
       ['priority', 'score'],
       ['asc', 'desc']
     ), take_best
   );
+  const captureNode = _.find(combinedNode, (node) => node.category === 'capture' && node.owner === curr_player);
+  if (bestNode[0].owner !== curr_player && bestNode[0].category !== 'capture' && captureNode) {
+    const connected_cells = findConnectedCells(bestNode[0]);
+    let potentialCapture = false;
+    for (let cell of connected_cells) {
+      if (checkPotentialCapture(curr_board, curr_player, cell, bestNode[0].dir)) {
+        potentialCapture = true;
+        break;
+      }
+    }
+    if (potentialCapture) bestNode[0] = captureNode;
+    // const captureNode = _.find(combinedNode, (node) => node.category === 'capture' && node.owner === curr_player);
+    // console.log('bestNode', bestNode);
+    // console.log('curr_player', curr_player, 'possible captureNode', captureNode);
+  }
+  
   // console.log('combinedNode', combinedNode);
-  // return ({ b_node, t_node });
-  return (combinedNode);
+  // console.log('curr_player', curr_player, 'bestNode', bestNode);
+  
+  // console.log('========');
+  return (bestNode);
 }
