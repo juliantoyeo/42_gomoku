@@ -172,13 +172,7 @@ export default function Menu(props) {
               </IconWrapper>
               <IconWrapper>
                 <img src={timersvg} alt="time" />
-                <span
-                  style={{
-                    color: AITimeUsage > 0.5 ? '#ff0000' : '#fff',
-                  }}
-                >
-                  {AITimeUsage}
-                </span>
+                <span>{AITimeUsage}</span>
               </IconWrapper>
               {isGameOver &&
                 (winner === 'AI' ? (
