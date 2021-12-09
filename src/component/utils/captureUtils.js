@@ -7,6 +7,7 @@ export const checkCapture = (curr_board, curr_player, captured, cell, isAi) => {
   const newUnoccuppiedAdjacentCells = [];
   const newCaptured = _.cloneDeep(captured);
   const capturedCell = [];
+
   if (curr_board.board[y]?.[x + 1] === enemy && curr_board.board[y]?.[x + 2] === enemy && curr_board.board[y]?.[x + 3] === curr_player) {
     curr_board.board[y][x + 1] = '';
     curr_board.board[y][x + 2] = '';
@@ -82,6 +83,7 @@ export const checkCapture = (curr_board, curr_player, captured, cell, isAi) => {
 export const checkIllegalMoveCapture = (curr_board, curr_player, cell) => {
   const { y, x } = cell;
   const enemy = curr_player === 'X' ? 'O' : 'X';
+
   if (curr_board[y]?.[x + 1] === enemy && curr_board[y]?.[x - 1] === curr_player && curr_board[y]?.[x - 2] === enemy) {
     return true;
   }
@@ -112,6 +114,7 @@ export const checkIllegalMoveCapture = (curr_board, curr_player, cell) => {
 export const checkIfCaptureMove = (curr_board, curr_player, cell) => {
   const { y, x } = cell;
   const enemy = curr_player === 'X' ? 'O' : 'X';
+
   if (curr_board[y]?.[x + 1] === enemy && curr_board[y]?.[x + 2] === enemy && curr_board[y]?.[x + 3] === curr_player) {
     return true;
   }

@@ -8,7 +8,7 @@ export const checkPotentialCapture = (board, curr_player, cell, curr_dir) => {
 
   for (let dir of dir_array) {
     if (curr_dir === dir) continue;
-    // console.log('checking dir', dir);
+
     const next_1 = getCoordinate(y, x, 1, dir, true, false);
     const next_2 = getCoordinate(y, x, 2, dir, true, false);
     const prev_1 = getCoordinate(y, x, 1, dir, false, false);
@@ -60,13 +60,10 @@ const checkWinningRow = (board, curr_player, curr_capture, dir, y, x) => {
   }
   if (counter >= CONNECT_N) {
     win = true;
-    // console.log('curr_capture[curr_player]', curr_capture[curr_player]);
     if (curr_capture[curr_player] === 8) {
-      // console.log('win on dir', dir);
       for (let cell of connected_cells) {
         if (checkPotentialCapture(board, curr_player, cell, dir)) {
           win = false;
-          // console.log('cell', cell, 'is captureable, thus win is ', win);
           break;
         }
       }

@@ -2,11 +2,9 @@ import _ from 'lodash';
 import {
   BOARD_SIZE,
   DIAGONAL_ROW_SIZE,
-  TAKE_BEST_N,
   PRIORITY,
   SCORE,
   patterns,
-  patterns_index,
   getCoordinateId
 } from './boardUtils';
 
@@ -96,13 +94,11 @@ const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir, ad
       score = curr_capture[enemy] * 2 + score;
       const capture_cell_id = getCoordinateId(potential_capture_cell.y, potential_capture_cell.x);
       const selected_adj_cell = _.find(adj_cells, (cell) => cell.id === capture_cell_id);
+
       if (selected_adj_cell?.isDoubleThree) {
         score = SCORE['double_3'];
         priority = PRIORITY['double_3'];
       }
-
-      // console.log('eval_board dir', dir, 'start_y', start_y, 'start_x', start_x, 
-      // 'potential_capture_cell', potential_capture_cell, 'potential_capture_index', potential_capture_index, 'selected_adj_cell', selected_adj_cell, 'score', score, 'priority', priority);
     }
     if (owner !== curr_player) {
       score = score * -1;
@@ -118,7 +114,6 @@ const getNodeFromPattern = (y, x, pattern, key, curr_board, curr_player, dir, ad
       score: score
     });
   }
-
   return null;
 }
 
@@ -140,7 +135,6 @@ const evaluate = (curr_board, curr_player, adj_cells, curr_capture, dir) => {
           new_node = getNodeFromPattern(y, x, pattern, key, curr_board, curr_player, dir, adj_cells, curr_capture);
         }
       }
-
       if (new_node) {
         if (best_node === null || best_node.priority > new_node.priority)
           best_node = new_node;
@@ -150,44 +144,16 @@ const evaluate = (curr_board, curr_player, adj_cells, curr_capture, dir) => {
   if (best_node) {
     n_array.push(best_node);
   }
-
   return n_array;
 }
 
 export const evaluateBoard = (currentBoard, currentPlayer, adj_cells, curr_capture, take_best) => {
-  // let b_node = [];
-  // let t_node = [];
   const v_board = _.zip(...currentBoard);
   const d_board = getDiagonalBoard(currentBoard);
   const h_node = evaluate(currentBoard, currentPlayer, adj_cells, curr_capture, 'h');
   const v_node = evaluate(v_board, currentPlayer, adj_cells, curr_capture, 'v');
   const d_node_1 = evaluate(d_board.d_1, currentPlayer, adj_cells, curr_capture, 'd_1');
   const d_node_2 = evaluate(d_board.d_2, currentPlayer, adj_cells, curr_capture, 'd_2');
-  // b_node = _.take(
-  //   _.orderBy(
-  //     _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner === currentPlayer),
-  //     ['score'],
-  //     ['desc']
-  //   ), TAKE_BEST_N
-  // );
-  // t_node = _.take(
-  //   _.orderBy(
-  //     _.filter([...h_node, ...v_node, ...d_node_1, ...d_node_2], (node) => node.owner !== currentPlayer),
-  //     ['score'],
-  //     ['asc']
-  //   ), TAKE_BEST_N
-  // );
-
-  // let combinedNode = _.take(
-  //   _.orderBy(
-  //     _.map([...b_node, ...t_node], (node) => {
-  //       node.priority = _.findIndex(patterns_index, (category) => category === node.category);
-  //       return node
-  //     }),
-  //     ['priority'],
-  //     ['asc']
-  //   ), TAKE_BEST_N
-  // );
   const combinedNode = _.take(
     _.orderBy(
       [...d_node_1, ...d_node_2, ...h_node, ...v_node],
@@ -195,7 +161,6 @@ export const evaluateBoard = (currentBoard, currentPlayer, adj_cells, curr_captu
       ['asc', 'desc']
     ), take_best
   );
-  // console.log(`b_node`, b_node);
-  // console.log(`t_node`, t_node);
+
   return (combinedNode);
 }

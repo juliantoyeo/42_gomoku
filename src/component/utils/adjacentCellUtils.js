@@ -12,6 +12,7 @@ const checkSpecialMove = (curr_board, curr_player, adj_cells) => {
     else {
       const isCapture = checkIfCaptureMove(curr_board, curr_player, adj_cells[i]);
       const isDoubleThree = checkMoveDoubleThree(curr_board, curr_player, adj_cells[i]);
+
       adj_cells[i].isCapture = isCapture;
       adj_cells[i].isDoubleThree = isDoubleThree;
       if (isCapture === false && isDoubleThree === true)
@@ -24,8 +25,10 @@ const checkSpecialMove = (curr_board, curr_player, adj_cells) => {
 // For recalculate adjacent cell after and undo, all move record will be re-scanned
 export const generateAdjacentFromAllOccupiedCell = (curr_board, curr_player, move_record) => {
   let new_adjacent_cells = [];
+
   for (let move of move_record) {
     const { y, x } = move;
+
     if (curr_board[y - 1]?.[x - 1] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x - 1), y: y - 1, x: x - 1 });
     if (curr_board[y - 1]?.[x] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x), y: y - 1, x: x });
     if (curr_board[y - 1]?.[x + 1] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x + 1), y: y - 1, x: x + 1 });
@@ -42,8 +45,10 @@ export const generateAdjacentFromAllOccupiedCell = (curr_board, curr_player, mov
 
 export const generateAdjacentFromLastOccupiedCell = (curr_board, curr_player, adjacent_cells, last_move) => {
   let new_adjacent_cells = [];
+
   if (last_move) {
     const { y, x } = last_move;
+
     new_adjacent_cells = _.filter(adjacent_cells, (cell) => (cell.y !== y || cell.x !== x));
     if (curr_board[y - 1]?.[x - 1] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x - 1), y: y - 1, x: x - 1 });
     if (curr_board[y - 1]?.[x] === '') new_adjacent_cells.push({ id: getCoordinateId(y - 1, x), y: y - 1, x: x });

@@ -19,19 +19,16 @@ export const MenuContainer = styled.div`
   color: white;
   display: flex;
   flex-direction: column;
-  /* justify-content: center; */
   align-items: center;
   padding: 20px;
 `;
 
 export const MenuTitle = styled.div`
-  /* border: 1px solid white; */
   text-align: center;
   margin: 10px 0px;
 `;
 
 export const InputContainer = styled.div`
-  /* border: 1px solid white; */
   display: flex;
   justify-content: space-evenly;
   width: 100%;

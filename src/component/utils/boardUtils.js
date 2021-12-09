@@ -1,16 +1,5 @@
 import _ from 'lodash';
 
-// NOTE
-// To traverse horizontal pattern
-// [y][x + i] where i < col_size
-// To traverse vertical pattern
-// [y + i][x] where i < row_size
-// To traverse diagonal_1 pattern
-// [y + i][x - i] where i < diagonal_row.length
-// To traverse diagonal_2 pattern
-// [y + i][x + i] where i < diagonal_row.length
-
-
 // Board setting
 export const BOARD_SIZE = 19;
 export const DIAGONAL_ROW_SIZE = BOARD_SIZE + BOARD_SIZE - 1;
@@ -51,7 +40,6 @@ export const createBoard = () => {
       new Array(BOARD_SIZE).fill('')
     )
   );
-  // return demoBoard;
 }
 
 export const dir_array = ['h', 'v', 'd_1', 'd_2'];
@@ -177,6 +165,7 @@ export const PRIORITY = {
 
 export const getCoordinateId = (y, x) => {
   const xArray = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's'];
+
   return `${y}${xArray[x]}`;
 }
 
@@ -186,18 +175,19 @@ const getCell = (board, adj_cells, list, { y, x }) => {
     (cell) => cell.y === y && cell.x === x
   );
   const selectedBcell = _.find(list, (cell) => cell.y === y && cell.x === x);
+
   if (selectedCell?.isIllegal) return 'I';
   else if (selectedBcell?.isCapturingCell) return 'C';
-  // else if (selectedBcell) return 'B';
-  // else if (selectedCell) return 'A';
   else if (board[y][x] === '') return '_';
   return board[y][x];
 };
 
 export const printBoard = (board, adj_cells, list) => {
   let string = '\ta,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s\n';
+
   _.map(board, (row, y) => {
     let rowString = `${y}\t`;
+
     _.map(row, (col, x) => {
       rowString = `${rowString}${getCell(board, adj_cells, list, { y, x })},`
     })

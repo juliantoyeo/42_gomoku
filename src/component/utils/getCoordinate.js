@@ -19,6 +19,7 @@ export const getCoordinate = (y, x, index, dir, isForward, shouldGetId) => {
     if (isForward) next = { y: y - index, x: x + index };
     else next = { y: y + index, x: x - index };
   }
+
   return ({
     id: shouldGetId ? getCoordinateId(next.y, next.x) : '',
     y: next.y,
