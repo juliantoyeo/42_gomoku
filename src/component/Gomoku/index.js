@@ -1,18 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
 import _ from 'lodash';
 
 import {
   BOARD_SIZE,
-  DIAGONAL_ROW_SIZE,
-  CONNECT_N,
-  SCORE,
-  TAKE_BEST_N,
-  DEPTH,
-  MAX,
-  MIN,
-  patterns,
   createBoard,
-  getCoordinateId,
 } from '../utils/boardUtils';
 import { useAi } from './useAi';
 import { useInterval } from './useInterval';
@@ -21,9 +13,6 @@ import {
   generateAdjacentFromAllOccupiedCell,
   generateAdjacentFromLastOccupiedCell,
 } from '../utils/adjacentCellUtils';
-import { evaluteCells } from '../utils/evaluateUtils';
-// import { evaluateBoard } from '../utils/old_logic/evaluteBoard';
-import { generateBTcell } from '../utils/cellUtils';
 import {
   checkCapture,
   checkIfCaptureMove,
@@ -32,33 +21,18 @@ import {
 import { checkMoveDoubleThree } from '../utils/doubleThreeUtils';
 
 import {
-  MainContainer,
-  MainDisplayContainer,
-  BoardContainer,
-  RightContainer,
-  Cell,
-  CellNumber,
-  GameStatus,
-  StyledButton,
-  PlayerTurnContainer,
-  PlayerNameContainer,
-  TimerDiv,
   FlexBox,
   CountDownDiv,
-  Container,
 } from './style';
 import Board from '../board';
 import Menu from '../menu';
-import styled from 'styled-components';
 
-const TempGap = styled.div`
-  margin-top: 100px;
-`;
 
 const Gomoku = ({ gameMode, theme, backToLobby }) => {
+  const player1 = 'X';
+  const player2 = 'O';
   const [gameStatus, setGameStatus] = useState(null);
-  const [countDown, setCountDown] = useState(0);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [countDown, setCountDown] = useState(3);
   const [gameTurn, setGameTurn] = useState(0);
   const [timer, setTimer] = useState(0);
   const [captureCount, setCaptureCount] = useState({ X: 0, O: 0 });
@@ -66,8 +40,6 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
   const [toggleCapture, setToggleCapture] = useState(false);
   const [humanBestMove, setHumanBestMove] = useState(null);
   const [currentPlayer, setCurrentPlayer] = useState('X');
-  const [player1, setPlayer1] = useState('X');
-  const [player2, setPlayer2] = useState('O');
   const [moveRecord, setMoveRecord] = useState([]);
   const [adjacentCells, setAdjacentCells] = useState([]);
   const [board, setBoard] = useState({
@@ -96,17 +68,10 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
   useEffect(() => {
     if (gameStatus === null && countDown === -1) {
       if (currentPlayer === player1) {
-        /**
-         * Use setTimeout() for making a pause between human player and AI
-         * otherwise AI plays very quick and the sound when putting the stone
-         * get's desynchronized
-         * WARNING!
-         * This doesn't interfere with the AI timing becuase the time
-         * is set inside the setTimeout();
-         */
         const start = window.performance.now();
         const bestMove = getBestMovePlayer1();
         const end = window.performance.now();
+
         setTimer(end - start);
         if (bestMove) {
           if (gameMode === 'solo') putMark(bestMove);
@@ -116,6 +81,7 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
         const start = window.performance.now();
         const bestMove = getBestMovePlayer2();
         const end = window.performance.now();
+
         setTimer(end - start);
         if (bestMove) {
           setHumanBestMove(bestMove);
@@ -138,7 +104,6 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
     let lastMove = null;
     let unCaptureCount = { X: 0, O: 0 };
     for (let i = 0; i < undoCount; i++) {
-      // console.log('undo');
       lastMove = _.last(newRecord);
       if (lastMove) {
         newBoard.board[lastMove.y][lastMove.x] = '';
@@ -181,23 +146,22 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
     setAdjacentCells([]);
     setMoveRecord([]);
     setGameStatus(null);
-    setCountDown(0);
+    setCountDown(3);
   };
 
   const putMark = ({ y, x }) => {
     if (gameStatus) return 'game over';
     let gameResult = null;
+
     if (board.board[y][x] === '') {
       let newBoard = _.cloneDeep(board);
       let newAdjacentCells = _.cloneDeep(adjacentCells);
       const nextPlayer = currentPlayer === 'X' ? 'O' : 'X';
-      setErrorMessage('');
+
       if (checkIllegalMoveCapture(newBoard.board, currentPlayer, { y, x })) {
-        setErrorMessage('Illegal move into capture area');
         return 'Illegal move into capture area';
       } else if (!checkIfCaptureMove(newBoard.board, currentPlayer, { y, x })) {
         if (checkMoveDoubleThree(newBoard.board, currentPlayer, { y, x })) {
-          setErrorMessage('Illegal move that will result in double three');
           return 'Illegal move that will result in double three';
         }
       }

@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/alt-text */
 import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import boardBackground from '../../assets/images/wood-pattern.png';
