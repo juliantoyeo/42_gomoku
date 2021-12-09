@@ -112,7 +112,7 @@ const getNodeFromPattern = (item, offset, pattern, key, curr_player, dir, adj_ce
         score = SCORE['double_3'];
         priority = PRIORITY['double_3'];
       }
-      
+
       // console.log('start_y', start_y, 'start_x', start_x, 'potential_capture_cell', potential_capture_cell, 'capture_cell_id', capture_cell_id, 'selected_adj_cell', selected_adj_cell);
     }
     if (owner !== curr_player) {
@@ -221,7 +221,7 @@ const getBlock = (curr_board, adj_cells, dir) => {
       }
       else break;
 
-      
+
       // }
     }
     // consecutive_empty = curr_board[y][x] === '' ? 1 : 0;
@@ -250,7 +250,7 @@ const getBlock = (curr_board, adj_cells, dir) => {
         start = next;
       }
       else break;
-      
+
       // }
     }
     // if (firstCell) {
@@ -289,6 +289,64 @@ const findConnectedCells = (node) => {
   }
   // console.log('connected_cells', connected_cells);
   return connected_cells;
+}
+
+const getPotentialCaptureNode = (board, curr_player, cell, curr_dir) => {
+  const { y, x } = cell;
+  const enemy = curr_player === 'X' ? 'O' : 'X';
+  let isCapturable = false;
+  let pattern;
+  let start = { y, x };
+  let dir_found = '';
+
+  // console.log('im here', curr_player);
+  for (let dir of dir_array) {
+    if (curr_dir === dir) continue;
+    // console.log('checking dir', dir);
+    dir_found = dir;
+    const next_1 = getCoordinate(y, x, 1, dir, true, false);
+    const next_2 = getCoordinate(y, x, 2, dir, true, false);
+    const prev_1 = getCoordinate(y, x, 1, dir, false, false);
+    const prev_2 = getCoordinate(y, x, 2, dir, false, false);
+
+    if (board[prev_1.y]?.[prev_1.x] === '' && board[next_1.y]?.[next_1.x] === enemy && board[next_2.y]?.[next_2.x] === curr_player) {
+      pattern = patterns['capture'][1];
+      start = prev_1;
+      isCapturable = true;
+      break;
+    }
+    else if (board[prev_1.y]?.[prev_1.x] === enemy && board[prev_2.y]?.[prev_2.x] === '' && board[next_1.y]?.[next_1.x] === curr_player) {
+      pattern = patterns['capture'][1];
+      start = prev_2;
+      isCapturable = true;
+      break;
+    }
+    else if (board[prev_1.y]?.[prev_1.x] === curr_player && board[next_1.y]?.[next_1.x] === enemy && board[next_2.y]?.[next_2.x] === '') {
+      pattern = patterns['capture'][0];
+      start = prev_1;
+      isCapturable = true;
+      break;
+    }
+    else if (board[prev_1.y]?.[prev_1.x] === enemy && board[prev_2.y]?.[prev_2.x] === curr_player && board[next_1.y]?.[next_1.x] === '') {
+      pattern = patterns['capture'][0];
+      start = prev_2;
+      isCapturable = true;
+      break;
+    }
+  }
+  if (isCapturable) {
+    return ({
+      start,
+      pattern: pattern,
+      owner: curr_player,
+      category: 'capture',
+      priority: 6,
+      dir: dir_found,
+      score: 55,
+    });
+  }
+  // return isCapturable;
+  else return null;
 }
 
 export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, take_best) => {
@@ -341,7 +399,7 @@ export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, t
   // );
   const combinedNode = [...d_node_1, ...d_node_2, ...h_node, ...v_node];
   // const combinedNode = [...h_node];
-  
+
   const bestNode = _.take(
     _.orderBy(
       combinedNode,
@@ -349,25 +407,32 @@ export const evaluteCells = (curr_board, curr_player, adj_cells, curr_capture, t
       ['asc', 'desc']
     ), take_best
   );
-  const captureNode = _.find(combinedNode, (node) => node.category === 'capture' && node.owner === curr_player);
-  if (bestNode[0].owner !== curr_player && bestNode[0].category !== 'capture' && captureNode) {
+  // const captureNode = _.find(combinedNode, (node) => node.category === 'capture' && node.owner === curr_player);
+  if (bestNode[0].owner !== curr_player && bestNode[0].category !== 'capture') {
     const connected_cells = findConnectedCells(bestNode[0]);
-    let potentialCapture = false;
+    let potentialCaptureNode = null;
     for (let cell of connected_cells) {
-      if (checkPotentialCapture(curr_board, curr_player, cell, bestNode[0].dir)) {
-        potentialCapture = true;
+      potentialCaptureNode = getPotentialCaptureNode(curr_board, curr_player, cell, bestNode[0].dir);
+      if (potentialCaptureNode) {
+        // console.log('potentialCaptureNode', potentialCaptureNode);
+        bestNode[0] = potentialCaptureNode;
         break;
       }
+      // if (getPotentialCaptureNode(curr_board, curr_player, cell, bestNode[0].dir)) {
+      //   potentialCapture = true;
+      //   break;
+      // }
     }
-    if (potentialCapture) bestNode[0] = captureNode;
+    // if (potentialCaptureNode) bestNode[0] = potentialCaptureNode;
     // const captureNode = _.find(combinedNode, (node) => node.category === 'capture' && node.owner === curr_player);
     // console.log('bestNode', bestNode);
     // console.log('curr_player', curr_player, 'possible captureNode', captureNode);
   }
-  
+
+  // console.log('captureNode', captureNode);
   // console.log('combinedNode', combinedNode);
   // console.log('curr_player', curr_player, 'bestNode', bestNode);
-  
+
   // console.log('========');
   return (bestNode);
 }
