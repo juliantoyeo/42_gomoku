@@ -94,7 +94,7 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
     if (countDown !== -1) {
       setCountDown((prev) => prev - 1);
     }
-  }, 1000);
+  }, 700);
 
   const undo = () => {
     if (moveRecord.length < 2) return;
