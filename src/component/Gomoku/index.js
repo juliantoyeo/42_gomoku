@@ -113,7 +113,7 @@ const Gomoku = ({ gameMode, theme, backToLobby }) => {
             if (gameMode === 'solo') putMark(bestMove);
             else setHumanBestMove(bestMove);
           }
-        }, 500);
+        }, 200);
       } else if (gameMode === 'multi' && currentPlayer === player2) {
         const start = window.performance.now();
         const bestMove = getBestMovePlayer2();
